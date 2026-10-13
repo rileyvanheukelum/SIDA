@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Param,
@@ -22,8 +23,15 @@ export class ModerationController {
   }
 
   @Patch(':workId/approve')
-  approve(@Param('workId') workId: string) {
-    return this.moderationService.reviewWork(workId, 'APPROVED')
+  approve(
+    @Param('workId') workId: string,
+    @Body() body: { completeCommission?: boolean },
+  ) {
+    return this.moderationService.reviewWork(
+      workId,
+      'APPROVED',
+      body?.completeCommission ?? false,
+    )
   }
 
   @Patch(':workId/deny')

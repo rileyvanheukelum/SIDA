@@ -16,6 +16,11 @@ type PendingWork = {
     name: string
     email: string
   }
+  commissionRequest: {
+    id: string
+    title: string
+    status: string
+  } | null
 }
 
 export function Moderation() {
@@ -25,6 +30,9 @@ export function Moderation() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [processingId, setProcessingId] = useState<string | null>(null)
+  const [completeCommission, setCompleteCommission] = useState<
+    Record<string, boolean>
+  >({})
 
   async function loadQueue() {
     if (!accessToken) {
@@ -77,13 +85,26 @@ export function Moderation() {
     setError(null)
 
     try {
+      const shouldCompleteCommission =
+        decision === 'approve' && completeCommission[workId] === true
+
       const response = await fetch(
         `${API_URL}/moderation/${workId}/${decision}`,
         {
           method: 'PATCH',
           headers: {
             Authorization: `Bearer ${accessToken}`,
+            ...(shouldCompleteCommission
+              ? { 'Content-Type': 'application/json' }
+              : {}),
           },
+          ...(shouldCompleteCommission
+            ? {
+                body: JSON.stringify({
+                  completeCommission: true,
+                }),
+              }
+            : {}),
         },
       )
 
@@ -95,6 +116,13 @@ export function Moderation() {
 
       // Remove the reviewed submission from the pending queue.
       setPending((current) => current.filter((work) => work.id !== workId))
+
+      // Clear the checkbox state for the reviewed submission.
+      setCompleteCommission((current) => {
+        const next = { ...current }
+        delete next[workId]
+        return next
+      })
     } catch (err) {
       setError(
         err instanceof Error
@@ -160,12 +188,56 @@ export function Moderation() {
                   Submitted by {work.member.name}
                 </p>
 
+                {work.commissionRequest && (
+                  <div className="mt-3 rounded-lg border border-indigo-100 bg-indigo-50 p-3">
+                    <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">
+                      Commission
+                    </p>
+
+                    <p className="mt-1 text-sm font-bold text-zinc-900">
+                      {work.commissionRequest.title}
+                    </p>
+
+                    <p className="mt-1 text-xs text-zinc-500">
+                      Status: {work.commissionRequest.status}
+                    </p>
+                  </div>
+                )}
+
                 <p className="mt-3 text-sm text-zinc-600">
                   {work.description || 'No description provided.'}
                 </p>
               </div>
 
               <div className="flex gap-2 md:flex-col">
+                {work.commissionRequest?.status === 'IN_PROGRESS' && (
+                  <label className="flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={completeCommission[work.id] === true}
+                      onChange={(event) =>
+                        setCompleteCommission((current) => ({
+                          ...current,
+                          [work.id]: event.target.checked,
+                        }))
+                      }
+                      disabled={processingId !== null}
+                      className="mt-0.5"
+                    />
+
+                    <span>
+                      <span className="block font-bold text-zinc-900">
+                        Complete commission
+                      </span>
+
+                      <span className="block text-xs text-zinc-500">
+                        Mark this commission as completed when approving this
+                        work.
+                      </span>
+                    </span>
+                  </label>
+                )}
+
                 <button
                   type="button"
                   disabled={processingId !== null}
