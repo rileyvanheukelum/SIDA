@@ -1,0 +1,136 @@
+
+/* ==============================
+   FONT REGISTRATION
+============================== */
+
+@font-face {
+  font-family: 'Fontjek';
+  src: url('../assets/fonts/Fontjek.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Creato Display';
+  src: url('../assets/fonts/CreatoDisplay-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Creato Display';
+  src: url('../assets/fonts/CreatoDisplay-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Creato Display';
+  src: url('../assets/fonts/CreatoDisplay-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+
+/* ==============================
+   DESIGN TOKENS
+============================== */
+
+:root {
+  /* COLOR PALETTE */
+
+  --color-white: #FFFFFF;
+  --color-light-gray: #D9D9D9;
+  --color-black: #000000;
+
+  --color-tan: #EAE2B7;
+  --color-yellow: #FCBF49;
+  --color-orange: #F77F00;
+  --color-red: #D62828;
+  --color-navy-blue: #003049;
+
+
+  /* FONT FAMILIES */
+
+  --font-header: 'Fontjek', sans-serif;
+  --font-display: 'Creato Display', sans-serif;
+
+
+  /* FONT SIZES */
+
+  --text-header: 96px;
+
+  --text-subheading-1: 40px;
+  --text-subheading-2: 24px;
+  --text-subheading-3: 20px;
+  --text-subheading-4: 16px;
+
+  --text-body-1: 20px;
+  --text-body-2: 16px;
+
+  --text-italic-label: 16px;
+
+
+  /* FONT WEIGHTS */
+
+  --weight-regular: 400;
+  --weight-bold: 700;
+}
+
+
+/* ==============================
+   TYPOGRAPHY CLASSES
+============================== */
+
+.type-header {
+  font-family: var(--font-header);
+  font-size: var(--text-header);
+  font-weight: var(--weight-regular);
+}
+
+.type-subheading-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-1);
+  font-weight: var(--weight-bold);
+}
+
+.type-subheading-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-2);
+  font-weight: var(--weight-bold);
+}
+
+.type-subheading-3 {
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-3);
+  font-weight: var(--weight-bold);
+}
+
+.type-subheading-4 {
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-4);
+  font-weight: var(--weight-bold);
+}
+
+.type-body-1 {
+  font-family: var(--font-display);
+  font-size: var(--text-body-1);
+  font-weight: var(--weight-regular);
+}
+
+.type-body-2 {
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+}
+
+.type-italic-label {
+  font-family: var(--font-display);
+  font-size: var(--text-italic-label);
+  font-weight: var(--weight-regular);
+  font-style: italic;
+}

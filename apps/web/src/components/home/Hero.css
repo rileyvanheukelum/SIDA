@@ -1,0 +1,147 @@
+
+/* ==============================
+   HERO CONTAINER
+============================== */
+
+.home-hero {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  overflow: hidden;
+  background-color: var(--color-black);
+}
+
+/* ==============================
+   OVERLAY
+============================== */
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+/* ==============================
+   HERO CONTENT
+============================== */
+
+.hero-content {
+  position: absolute;
+  top: 50%;
+  left: max(24px, calc((100% - 1200px) / 2));
+  z-index: 3;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  width: min(650px, calc(100% - 48px));
+
+  transform: translateY(-50%);
+  text-align: left;
+  color: var(--color-white);
+}
+
+.hero-eyebrow {
+  margin: 0 0 12px;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  margin: 0;
+
+  font-family: var(--font-header);
+  font-size: var(--text-header);
+  font-weight: var(--weight-regular);
+  line-height: 0.95;
+}
+
+.hero-description {
+  max-width: 600px;
+  margin-top: 24px;
+  line-height: 1.35;
+}
+
+.hero-actions {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.hero-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 55px;
+  padding: 12px 24px;
+
+  background-color: var(--color-tan);
+  border-radius: 6px;
+  color: var(--color-black);
+
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+  text-decoration: none;
+
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.hero-button:hover {
+  background-color: var(--color-yellow);
+  transform: translateY(-2px);
+}
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+@media (max-width: 1000px) {
+  .home-hero {
+    height: 650px;
+  }
+
+  .hero-content {
+    left: 6%;
+    width: min(88%, 430px);
+  }
+
+  .hero-title {
+    font-size: clamp(48px, 8vw, 80px);
+  }
+}
+
+@media (max-width: 600px) {
+  .home-hero {
+    height: 600px;
+  }
+
+  .hero-content {
+    left: 5%;
+    width: 90%;
+  }
+
+  .hero-title {
+    font-size: 48px;
+  }
+
+  .hero-description {
+    font-size: var(--text-body-2);
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .hero-button {
+    width: fit-content;
+  }
+}

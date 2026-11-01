@@ -1,0 +1,99 @@
+
+/* ==============================
+   ARTWORK TRACK
+============================== */
+
+.artwork-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+/* ==============================
+   TRACK ANIMATION
+============================== */
+
+.artwork-track-content {
+  display: flex;
+  align-items: stretch;
+
+  width: max-content;
+  height: 100%;
+
+  animation: artwork-scroll 90s linear infinite;
+}
+
+.artwork-track:hover .artwork-track-content {
+  animation-play-state: paused;
+}
+
+/* ==============================
+   ARTWORK GROUPS
+============================== */
+
+.artwork-track-group {
+  display: flex;
+  align-items: stretch;
+
+  flex-shrink: 0;
+  height: 100%;
+}
+
+/* ==============================
+   INDIVIDUAL ARTWORK
+============================== */
+
+.artwork-track-item {
+  flex: 0 0 auto;
+  height: 100%;
+  overflow: hidden;
+}
+
+.artwork-track-item img {
+  display: block;
+
+  width: auto;
+  height: 100%;
+  max-width: none;
+
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ==============================
+   CONTINUOUS SCROLL
+============================== */
+
+@keyframes artwork-scroll {
+  from {
+    transform: translateX(-50%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+@media (max-width: 600px) {
+  .artwork-track-content {
+    animation-duration: 65s;
+  }
+}
+
+/* ==============================
+   ACCESSIBILITY
+============================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .artwork-track-content {
+    animation: none;
+    transform: none;
+  }
+}

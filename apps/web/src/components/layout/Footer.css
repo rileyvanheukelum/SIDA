@@ -1,0 +1,102 @@
+/* ==============================
+   FOOTER CONTAINER
+============================== */
+
+.site-footer {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+  min-height: 115px;
+
+  padding-left: 6.25%;
+
+  background-color: var(--color-tan);
+}
+
+
+/* ==============================
+   FOOTER DESCRIPTION
+============================== */
+
+.footer-description {
+  color: var(--color-black);
+
+  font-family: var(--font-display);
+  font-size: var(--text-body-1);
+  font-weight: var(--weight-regular);
+}
+
+
+/* ==============================
+   FOOTER BRAND SECTION
+============================== */
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 300px;
+  height: 115px;
+
+  background-color: var(--color-navy-blue);
+  border-radius: 100px 0 0 100px;
+}
+
+.footer-brand a {
+  color: var(--color-tan);
+
+  font-family: var(--font-header);
+  font-size: 48px;
+  line-height: 1;
+
+  text-decoration: none;
+}
+
+
+/* ==============================
+   RESPONSIVE LAYOUT
+============================== */
+
+@media (max-width: 1000px) {
+  .footer-description {
+    font-size: var(--text-body-2);
+    padding-right: 20px;
+  }
+
+  .footer-brand {
+    width: 200px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-footer {
+    min-height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 20px;
+
+    padding: 24px 20px 0;
+  }
+
+  .footer-description {
+    padding: 0;
+    text-align: center;
+    font-size: var(--text-body-2);
+  }
+
+  .footer-brand {
+    align-self: flex-end;
+    width: 160px;
+    height: 75px;
+  }
+
+  .footer-brand a {
+    font-size: 36px;
+  }
+}

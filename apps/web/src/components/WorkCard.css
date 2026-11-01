@@ -1,0 +1,120 @@
+
+/* ==============================
+   WORK CARD
+============================== */
+
+.work-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  overflow: hidden;
+
+  background-color: var(--color-navy-blue);
+  border-radius: 12px;
+
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* ==============================
+   ARTWORK IMAGE
+============================== */
+
+.work-card-image {
+  width: 100%;
+  aspect-ratio: 1.75 / 1;
+
+  overflow: hidden;
+  background-color: var(--color-light-gray);
+}
+
+.work-card-image img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* ==============================
+   CARD INFORMATION
+============================== */
+
+.work-card-content {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  min-width: 0;
+
+  padding: 9px;
+  background-color: var(--color-navy-blue);
+  color: var(--color-white);
+}
+
+/* ==============================
+   CATEGORY
+============================== */
+
+.work-card-category {
+  margin: 0;
+
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--weight-regular);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* ==============================
+   TITLE
+============================== */
+
+.work-card-title {
+  margin: 4px 0 0;
+
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: var(--weight-bold);
+  line-height: 1.15;
+}
+
+/* ==============================
+   DESCRIPTION
+============================== */
+
+.work-card-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+
+  margin: 2px 0 0;
+
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: var(--weight-regular);
+  line-height: 1.2;
+}
+
+/* ==============================
+   AUTHOR
+============================== */
+
+.work-card-author {
+  margin-top: 5px;
+
+  color: var(--color-white);
+
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-style: italic;
+  font-weight: var(--weight-regular);
+
+  text-decoration: none;
+}
+
+.work-card-author:hover {
+  text-decoration: underline;
+}
