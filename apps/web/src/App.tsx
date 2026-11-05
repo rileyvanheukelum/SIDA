@@ -17,7 +17,7 @@ import { CommissionManagement } from './pages/CommissionManagement'
 
 export default function App() {
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--color-tan)] text-[var(--color-black)]">
+    <div className="min-h-screen flex flex-col bg-[var(--color-white)] text-[var(--color-black)]">
 
       <Header />
 

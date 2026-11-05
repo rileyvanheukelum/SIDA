@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import './Dashboard.css'
 
 const API_URL = 'http://localhost:3000/api'
 
@@ -97,6 +98,9 @@ export function Dashboard() {
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'commissions' | 'portfolio' | 'account'>(
+    'commissions',
+  )
 
   useEffect(() => {
     async function loadWorks() {
@@ -349,428 +353,481 @@ export function Dashboard() {
   const firstName = member.name.split(' ')[0]
 
   return (
-    <section className="mx-auto max-w-6xl px-5 py-16">
-      <div className="flex flex-wrap items-start justify-between gap-5">
-        <div>
-          <p className="text-sm font-bold uppercase tracking-widest text-indigo-600">
-            Member portal
-          </p>
-          <h1 className="mt-2 text-5xl font-black">
+    <section className="dashboard-page">
+      {/* PAGE INTRODUCTION */}
+      <header className="dashboard-header">
+        <div className="dashboard-intro">
+          <p className="type-italic-label">MEMBER PORTAL</p>
+
+          <h1 className="type-header">
             Welcome, {firstName}
           </h1>
-          <p className="mt-2 text-zinc-600">
-            Manage your profile and portfolio submissions.
+
+          <p className="type-body-2">
+            Manage your profile, portfolio submissions, and commissions.
           </p>
         </div>
+
+        <div className="dashboard-avatar">
+          {member.profileImage ? (
+            <img src={member.profileImage} alt={`${member.name}'s profile`} />
+          ) : null}
+        </div>
+      </header>
+
+      {/* DASHBOARD TABS */}
+      <div className="dashboard-tabs" role="tablist" aria-label="Dashboard sections">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'commissions'}
+          className={`dashboard-tab ${activeTab === 'commissions' ? 'active' : ''}`}
+          onClick={() => setActiveTab('commissions')}
+        >
+          Commissions
+        </button>
 
         <button
           type="button"
-          onClick={handleLogout}
-          className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-semibold"
+          role="tab"
+          aria-selected={activeTab === 'portfolio'}
+          className={`dashboard-tab ${activeTab === 'portfolio' ? 'active' : ''}`}
+          onClick={() => setActiveTab('portfolio')}
         >
-          Log out
+          Portfolio
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'account'}
+          className={`dashboard-tab ${activeTab === 'account' ? 'active' : ''}`}
+          onClick={() => setActiveTab('account')}
+        >
+          Account
         </button>
       </div>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-          <h2 className="text-xl font-black">Profile</h2>
-          <p className="mt-2 text-sm leading-6 text-zinc-600">
-            Edit the information displayed on your public member profile.
-          </p>
+      {/* TAB CONTENT */}
+      <main className="dashboard-panel">
+        {/* COMMISSIONS TAB */}
+        {activeTab === 'commissions' && (
+          <div role="tabpanel">
+            <section className="dashboard-section">
+              <h2 className="type-subheading-1">Assigned Commissions</h2>
+              <p className="type-body-2 dashboard-section-description">
+                Commission requests that you have accepted.
+              </p>
 
-          <button
-            type="button"
-            onClick={() => {
-              setShowProfileForm((current) => !current)
-              setProfileError(null)
-              setProfileSuccess(null)
-            }}
-            className="mt-4 rounded-lg bg-zinc-950 px-4 py-2 text-sm font-bold text-white"
-          >
-            {showProfileForm ? 'Cancel' : 'Edit profile'}
-          </button>
-        </div>
+              {commissionError && (
+                <div role="alert" className="dashboard-error">
+                  {commissionError}
+                </div>
+              )}
 
-        <Card
-          title="Portfolio"
-          text="Submit new work for leadership review before it becomes public."
-        />
+              {isLoadingCommissions ? (
+                <p className="type-body-2 dashboard-empty">
+                  Loading your assigned commissions...
+                </p>
+              ) : commissionError ? null : (
+                <>
+                  {assignedCommissions.filter(
+                    ({ commissionRequest }) =>
+                      commissionRequest.status !== 'COMPLETED' &&
+                      commissionRequest.status !== 'DECLINED',
+                  ).length === 0 ? (
+                    <p className="type-body-2 dashboard-empty">
+                      You don't have any active commissions yet.
+                    </p>
+                  ) : (
+                    <div className="dashboard-accordion-list">
+                      {assignedCommissions
+                        .filter(
+                          ({ commissionRequest }) =>
+                            commissionRequest.status !== 'COMPLETED' &&
+                            commissionRequest.status !== 'DECLINED',
+                        )
+                        .map(({ id, assignedAt, commissionRequest }) => (
+                          <details className="dashboard-accordion" key={id}>
+                            <summary className="dashboard-accordion-summary">
+                              <span className="type-subheading-4">
+                                {commissionRequest.title}
+                              </span>
+                              <CommissionStatusBadge status={commissionRequest.status} />
+                            </summary>
 
-        <Card
-          title="Status"
-          text={`${works.length} portfolio ${
-            works.length === 1 ? 'piece' : 'pieces'
-          } associated with your account.`}
-        />
-      </div>
+                            <div className="dashboard-accordion-content">
+                              <p className="type-italic-label">
+                                {commissionRequest.category}
+                              </p>
 
-      <div className="mt-8 rounded-2xl border border-zinc-200 bg-white p-6">
-        <div>
-          <h2 className="text-2xl font-black">Assigned commissions</h2>
-          <p className="mt-1 text-sm text-zinc-500">
-            Commission requests that leadership has assigned to you.
-          </p>
-        </div>
+                              <p className="type-body-2">
+                                {commissionRequest.description}
+                              </p>
 
-        {commissionError && (
-          <div
-            role="alert"
-            className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-          >
-            {commissionError}
+                              {commissionRequest.requirements && (
+                                <div className="dashboard-detail">
+                                  <h4 className="type-subheading-4">Requirements</h4>
+                                  <p className="type-body-2">
+                                    {commissionRequest.requirements}
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="dashboard-detail">
+                                <h4 className="type-subheading-4">Due date</h4>
+                                <p className="type-body-2">
+                                  {commissionRequest.dueDate
+                                    ? new Date(
+                                        commissionRequest.dueDate,
+                                      ).toLocaleDateString()
+                                    : 'No due date specified'}
+                                </p>
+                              </div>
+
+                              {commissionRequest.timeline && (
+                                <div className="dashboard-detail">
+                                  <h4 className="type-subheading-4">Timeline</h4>
+                                  <p className="type-body-2">
+                                    {commissionRequest.timeline}
+                                  </p>
+                                </div>
+                              )}
+
+                              <div className="dashboard-detail">
+                                <h4 className="type-subheading-4">Contact</h4>
+                                <p className="type-body-2">
+                                  {commissionRequest.contactName}
+                                </p>
+                                <a
+                                  href={`mailto:${commissionRequest.contactEmail}`}
+                                  className="dashboard-text-link type-body-2"
+                                >
+                                  {commissionRequest.contactEmail}
+                                </a>
+                              </div>
+
+                              <p className="dashboard-assigned-date type-body-2">
+                                Assigned {new Date(assignedAt).toLocaleDateString()}
+                              </p>
+
+                              {['MATCHED', 'IN_PROGRESS'].includes(
+                                commissionRequest.status,
+                              ) && (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleStartCommissionWork(commissionRequest)
+                                  }
+                                  className="dashboard-primary-button"
+                                >
+                                  Submit Work for this Commission
+                                </button>
+                              )}
+                            </div>
+                          </details>
+                        ))}
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+
+            <section className="dashboard-section">
+              <h2 className="type-subheading-1">Completed Commissions</h2>
+              <p className="type-body-2 dashboard-section-description">
+                Commission requests that you have completed.
+              </p>
+
+              {assignedCommissions.filter(
+                ({ commissionRequest }) =>
+                  commissionRequest.status === 'COMPLETED',
+              ).length === 0 ? (
+                <p className="type-body-2 dashboard-empty">
+                  You haven't completed any commissions yet.
+                </p>
+              ) : (
+                <div className="dashboard-accordion-list">
+                  {assignedCommissions
+                    .filter(
+                      ({ commissionRequest }) =>
+                        commissionRequest.status === 'COMPLETED',
+                    )
+                    .map(({ id, commissionRequest }) => (
+                      <details className="dashboard-accordion" key={id}>
+                        <summary className="dashboard-accordion-summary">
+                          <span className="type-subheading-4">
+                            {commissionRequest.title}
+                          </span>
+                          <CommissionStatusBadge status={commissionRequest.status} />
+                        </summary>
+
+                        <div className="dashboard-accordion-content">
+                          <p className="type-italic-label">
+                            {commissionRequest.category}
+                          </p>
+                          <p className="type-body-2">
+                            {commissionRequest.description}
+                          </p>
+                          {commissionRequest.requirements && (
+                            <div className="dashboard-detail">
+                              <h4 className="type-subheading-4">Requirements</h4>
+                              <p className="type-body-2">
+                                {commissionRequest.requirements}
+                              </p>
+                            </div>
+                          )}
+                          {commissionRequest.dueDate && (
+                            <div className="dashboard-detail">
+                              <h4 className="type-subheading-4">Due date</h4>
+                              <p className="type-body-2">
+                                {new Date(
+                                  commissionRequest.dueDate,
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </details>
+                    ))}
+                </div>
+              )}
+            </section>
           </div>
         )}
 
-        <div className="mt-6 space-y-4">
-          {isLoadingCommissions ? (
-            <p className="text-sm text-zinc-500">
-              Loading your assigned commissions...
-            </p>
-          ) : commissionError ? null : assignedCommissions.length === 0 ? (
-            <p className="rounded-xl bg-zinc-50 p-5 text-sm text-zinc-500">
-              You don’t have any assigned commissions yet.
-            </p>
-          ) : (
-            assignedCommissions.map(({ id, assignedAt, commissionRequest }) => (
-              <article
-                key={id}
-                className="rounded-xl border border-zinc-200 bg-zinc-50 p-5"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <h3 className="text-lg font-bold">
-                      {commissionRequest.title}
-                    </h3>
-                    <p className="mt-1 text-sm text-zinc-500">
-                      {commissionRequest.category}
-                    </p>
-                  </div>
-
-                  <CommissionStatusBadge status={commissionRequest.status} />
-                </div>
-
-                {commissionRequest.description && (
-                  <p className="mt-4 whitespace-pre-line text-sm leading-6 text-zinc-700">
-                    {commissionRequest.description}
-                  </p>
-                )}
-
-                {commissionRequest.requirements && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-bold">Requirements</h4>
-                    <p className="mt-1 whitespace-pre-line text-sm leading-6 text-zinc-600">
-                      {commissionRequest.requirements}
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-4 grid gap-3 border-t border-zinc-200 pt-4 text-sm sm:grid-cols-2">
-                  {commissionRequest.timeline && (
-                    <p>
-                      <span className="font-semibold">Timeline: </span>
-                      <span className="text-zinc-600">
-                        {commissionRequest.timeline}
-                      </span>
-                    </p>
-                  )}
-
-                  {commissionRequest.dueDate && (
-                    <p>
-                      <span className="font-semibold">Due date: </span>
-                      <span className="text-zinc-600">
-                        {new Date(commissionRequest.dueDate).toLocaleDateString()}
-                      </span>
-                    </p>
-                  )}
-
-                  <p>
-                    <span className="font-semibold">Contact: </span>
-                    <span className="text-zinc-600">
-                      {commissionRequest.contactName}
-                    </span>
-                  </p>
-
-                  <p>
-                    <span className="font-semibold">Email: </span>
-                    <a
-                      href={`mailto:${commissionRequest.contactEmail}`}
-                      className="text-indigo-600 underline underline-offset-2"
-                    >
-                      {commissionRequest.contactEmail}
-                    </a>
-                  </p>
-                </div>
-
-                <p className="mt-3 text-xs text-zinc-500">
-                  Assigned {new Date(assignedAt).toLocaleDateString()}
+        {/* PORTFOLIO TAB */}
+        {activeTab === 'portfolio' && (
+          <div role="tabpanel">
+            <div className="dashboard-panel-heading">
+              <div>
+                <h2 className="type-subheading-1">Your Work</h2>
+                <p className="type-body-2 dashboard-section-description">
+                  Uploaded work will appear here. Submissions are reviewed
+                  before appearing publicly.
                 </p>
+              </div>
 
-                {['MATCHED', 'IN_PROGRESS'].includes(commissionRequest.status) && (
-                  <button
-                    type="button"
-                    onClick={() => handleStartCommissionWork(commissionRequest)}
-                    className="mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-bold text-white hover:bg-indigo-700"
-                  >
-                    Submit work for this commission
-                  </button>
-                )}
-              </article>
-            ))
-          )}
-        </div>
-      </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (showForm) {
+                    handleCloseWorkForm()
+                  } else {
+                    setSelectedCommissionId(null)
+                    setForm(emptyForm)
+                    setShowForm(true)
+                    setError(null)
+                    setSuccess(null)
+                  }
+                }}
+                className="dashboard-primary-button"
+              >
+                {showForm ? 'Cancel' : '+ New Work'}
+              </button>
+            </div>
 
-      {showProfileForm && (
-        <form
-          onSubmit={handleProfileSubmit}
-          className="mt-8 space-y-5 rounded-2xl border border-zinc-200 bg-white p-6"
-        >
-          <div>
-            <h2 className="text-2xl font-black">Edit your profile</h2>
-            <p className="mt-1 text-sm text-zinc-500">
+            {success && (
+              <div role="status" className="dashboard-success">
+                {success}
+              </div>
+            )}
+
+            {error && !showForm && (
+              <div role="alert" className="dashboard-error">
+                {error}
+              </div>
+            )}
+
+            {isLoading ? (
+              <p className="type-body-2 dashboard-empty">
+                Loading your work...
+              </p>
+            ) : works.length === 0 ? (
+              <p className="type-body-2 dashboard-empty">
+                You haven't submitted any work yet.
+              </p>
+            ) : (
+              <div className="dashboard-accordion-list">
+                {works.map((work) => (
+                  <details className="dashboard-accordion" key={work.id}>
+                    <summary className="dashboard-accordion-summary">
+                      <span className="type-subheading-4">{work.title}</span>
+                      <StatusBadge status={work.status} />
+                    </summary>
+
+                    <div className="dashboard-work-content">
+                      <div className="dashboard-work-details">
+                        <p className="type-italic-label">{work.category}</p>
+
+                        {work.description && (
+                          <p className="type-body-2">{work.description}</p>
+                        )}
+
+                        {work.status === 'DENIED' && (
+                          <p className="type-body-2">
+                            This submission was not approved for publication.
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="dashboard-work-preview">
+                        <img
+                          src={work.thumbnailUrl || work.mediaUrl}
+                          alt={`Preview of ${work.title}`}
+                        />
+                      </div>
+                    </div>
+                  </details>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ACCOUNT TAB */}
+        {activeTab === 'account' && (
+          <div role="tabpanel">
+            <h2 className="type-subheading-1">Edit Your Profile</h2>
+            <p className="type-body-2 dashboard-section-description">
               These details appear on your public SIDA member profile.
             </p>
-          </div>
 
-          {profileError && (
-            <div
-              role="alert"
-              className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+            {profileError && (
+              <div role="alert" className="dashboard-error">
+                {profileError}
+              </div>
+            )}
+
+            {profileSuccess && (
+              <div role="status" className="dashboard-success">
+                {profileSuccess}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleProfileSubmit}
+              className="dashboard-profile-form"
             >
-              {profileError}
-            </div>
-          )}
+              <DashboardField
+                label="Name"
+                id="profile-name"
+              >
+                <input
+                  id="profile-name"
+                  required
+                  maxLength={120}
+                  value={profileForm.name}
+                  onChange={(event) =>
+                    updateProfileForm('name', event.target.value)
+                  }
+                />
+              </DashboardField>
 
-          <div>
-            <label htmlFor="profile-name" className="mb-1 block text-sm font-semibold">
-              Name
-            </label>
-            <input
-              id="profile-name"
-              required
-              maxLength={120}
-              value={profileForm.name}
-              onChange={(event) => updateProfileForm('name', event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            />
-          </div>
+              <DashboardField label="Title" id="profile-title">
+                <input
+                  id="profile-title"
+                  maxLength={120}
+                  value={profileForm.title}
+                  onChange={(event) =>
+                    updateProfileForm('title', event.target.value)
+                  }
+                />
+              </DashboardField>
 
-          <div>
-            <label htmlFor="profile-title" className="mb-1 block text-sm font-semibold">
-              Title
-            </label>
-            <input
-              id="profile-title"
-              maxLength={120}
-              placeholder="e.g. Graphic Designer"
-              value={profileForm.title}
-              onChange={(event) => updateProfileForm('title', event.target.value)}
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            />
-          </div>
+              <DashboardField label="Biography" id="profile-bio">
+                <textarea
+                  id="profile-bio"
+                  rows={5}
+                  maxLength={2000}
+                  value={profileForm.bio}
+                  onChange={(event) =>
+                    updateProfileForm('bio', event.target.value)
+                  }
+                />
+              </DashboardField>
 
-          <div>
-            <label htmlFor="profile-bio" className="mb-1 block text-sm font-semibold">
-              Bio
-            </label>
-            <textarea
-              id="profile-bio"
-              rows={5}
-              maxLength={2000}
-              value={profileForm.bio}
-              onChange={(event) => updateProfileForm('bio', event.target.value)}
-              className="w-full resize-y rounded-lg border border-zinc-300 px-3 py-2"
-            />
-          </div>
+              <DashboardField label="Disciplines" id="profile-disciplines">
+                <input
+                  id="profile-disciplines"
+                  value={profileForm.disciplines}
+                  onChange={(event) =>
+                    updateProfileForm('disciplines', event.target.value)
+                  }
+                />
+              </DashboardField>
 
-          <div>
-            <label
-              htmlFor="profile-disciplines"
-              className="mb-1 block text-sm font-semibold"
-            >
-              Disciplines
-            </label>
-            <input
-              id="profile-disciplines"
-              placeholder="Graphic Design, Motion Design, Web Design"
-              value={profileForm.disciplines}
-              onChange={(event) =>
-                updateProfileForm('disciplines', event.target.value)
-              }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            />
-            <p className="mt-1 text-xs text-zinc-500">
-              Separate each discipline with a comma.
-            </p>
-          </div>
+              <DashboardField label="Profile image URL" id="profile-image">
+                <input
+                  id="profile-image"
+                  type="url"
+                  placeholder="https://..."
+                  value={profileForm.profileImage}
+                  onChange={(event) =>
+                    updateProfileForm('profileImage', event.target.value)
+                  }
+                />
+              </DashboardField>
 
-          <div>
-            <label
-              htmlFor="profile-image"
-              className="mb-1 block text-sm font-semibold"
-            >
-              Profile image URL
-            </label>
-            <input
-              id="profile-image"
-              type="url"
-              placeholder="https://..."
-              value={profileForm.profileImage}
-              onChange={(event) =>
-                updateProfileForm('profileImage', event.target.value)
-              }
-              className="w-full rounded-lg border border-zinc-300 px-3 py-2"
-            />
-            <p className="mt-1 text-xs text-zinc-500">
-              Use a publicly accessible image URL.
-            </p>
-          </div>
+              <div className="dashboard-form-actions">
+                <button
+                  type="submit"
+                  disabled={isSavingProfile}
+                  className="dashboard-primary-button"
+                >
+                  {isSavingProfile ? 'Saving...' : 'Save profile'}
+                </button>
 
-          {profileForm.profileImage && (
-            <div>
-              <p className="mb-2 text-sm font-semibold">Image preview</p>
-              <img
-                src={profileForm.profileImage}
-                alt="Profile preview"
-                className="h-24 w-24 rounded-full border border-zinc-200 object-cover"
-                onError={(event) => {
-                  event.currentTarget.style.display = 'none'
-                }}
-              />
-            </div>
-          )}
-
-          <div className="flex flex-wrap gap-3">
-            <button
-              type="submit"
-              disabled={isSavingProfile}
-              className="rounded-lg bg-zinc-950 px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSavingProfile ? 'Saving...' : 'Save profile'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (!member) return
-
-                setProfileForm({
-                  name: member.name,
-                  title: member.title || '',
-                  bio: member.bio || '',
-                  disciplines: member.disciplines.join(', '),
-                  profileImage: member.profileImage || '',
-                })
-                setProfileError(null)
-                setProfileSuccess(null)
-                setShowProfileForm(false)
-              }}
-              className="rounded-lg border border-zinc-300 px-5 py-2.5 text-sm font-semibold"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-
-      {profileSuccess && (
-        <p
-          role="status"
-          className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700"
-        >
-          {profileSuccess}
-        </p>
-      )}
-
-      <div className="mt-12 rounded-2xl border border-zinc-200 bg-white p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-black">Your work</h2>
-            <p className="mt-1 text-sm text-zinc-500">
-              Submissions are reviewed before appearing publicly.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => {
-              if (showForm) {
-                handleCloseWorkForm()
-              } else {
-                setSelectedCommissionId(null)
-                setForm(emptyForm)
-                setShowForm(true)
-                setError(null)
-                setSuccess(null)
-              }
-            }}
-            className="rounded-lg bg-zinc-950 px-4 py-2 text-sm font-bold text-white"
-          >
-            {showForm ? 'Cancel' : '+ New Work'}
-          </button>
-        </div>
-        
-        {success && (
-          <div
-            role="status"
-            className="mt-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-700"
-          >
-            {success}
+                <button
+                  type="button"
+                  className="dashboard-secondary-button"
+                  onClick={() => {
+                    setProfileForm({
+                      name: member.name,
+                      title: member.title || '',
+                      bio: member.bio || '',
+                      disciplines: member.disciplines.join(', '),
+                      profileImage: member.profileImage || '',
+                    })
+                    setProfileError(null)
+                    setProfileSuccess(null)
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         )}
+      </main>
 
-        <div className="mt-6 space-y-3">
-          {isLoading ? (
-            <p className="text-sm text-zinc-500">Loading your work...</p>
-          ) : works.length === 0 ? (
-            <p className="rounded-xl bg-zinc-50 p-5 text-sm text-zinc-500">
-              You haven’t submitted any work yet.
-            </p>
-          ) : (
-            works.map((work) => (
-              <div
-                key={work.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-zinc-50 p-4"
-              >
-                <div>
-                  <p className="font-bold">{work.title}</p>
-                  <p className="text-sm text-zinc-500">{work.category}</p>
-                </div>
-
-                <StatusBadge status={work.status} />
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-
+      {/* NEW WORK MODAL */}
       {showForm && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className="dashboard-modal-overlay"
           onClick={() => {
-              if (!isSubmitting) handleCloseWorkForm()
-            }}
+            if (!isSubmitting) handleCloseWorkForm()
+          }}
         >
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="work-form-title"
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+            className="dashboard-modal"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="mb-5 flex items-start justify-between gap-4">
+            <div className="dashboard-modal-header">
               <div>
-                <h2 id="work-form-title" className="text-2xl font-black">
+                <h2 id="work-form-title" className="type-subheading-2">
                   {selectedCommissionId
-                    ? 'Submit work for assigned commission'
-                    : 'Submit new work'}
+                    ? 'Submit Commission Work'
+                    : 'Submit New Work'}
                 </h2>
 
                 {selectedCommissionId && (
-                  <p className="mt-1 text-sm text-zinc-600">
-                    This submission will be linked to your assigned commission. It will
-                    still be sent to leadership for review.
+                  <p className="type-body-2">
+                    This submission will be linked to your assigned commission.
+                    It will still be sent to club leadership for review.
                   </p>
                 )}
               </div>
@@ -780,86 +837,63 @@ export function Dashboard() {
                 onClick={handleCloseWorkForm}
                 aria-label="Close submission form"
                 disabled={isSubmitting}
-                className="rounded-lg border border-zinc-300 px-3 py-1 text-xl leading-none hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="dashboard-modal-close"
               >
                 ×
               </button>
             </div>
 
             {error && (
-              <div
-                role="alert"
-                className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-              >
+              <div role="alert" className="dashboard-error">
                 {error}
               </div>
             )}
 
-            <form
-              onSubmit={handleSubmit}
-              className="mt-6 space-y-5 rounded-xl border border-zinc-200 bg-zinc-50 p-5"
-            >
-              <div>
-                <label
-                  htmlFor="work-title"
-                  className="mb-1 block text-sm font-semibold"
-                >
-                  Title
-                </label>
+            <form onSubmit={handleSubmit} className="dashboard-profile-form">
+              <DashboardField label="Title" id="work-title">
                 <input
                   id="work-title"
                   required
                   maxLength={120}
+                  placeholder="e.g. Spring musical poster"
                   value={form.title}
                   onChange={(event) => updateForm('title', event.target.value)}
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
                 />
-              </div>
+              </DashboardField>
 
-              <div>
-                <label
-                  htmlFor="work-category"
-                  className="mb-1 block text-sm font-semibold"
-                >
-                  Category
-                </label>
-                <input
+              <DashboardField label="Category" id="work-category">
+                <select
                   id="work-category"
                   required
-                  maxLength={80}
-                  placeholder="e.g. Graphic Design, Motion Design, Web Design"
                   value={form.category}
                   onChange={(event) => updateForm('category', event.target.value)}
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="work-description"
-                  className="mb-1 block text-sm font-semibold"
                 >
-                  Description <span className="font-normal text-zinc-500">(optional)</span>
-                </label>
+                  <option value="">Select a category</option>
+                  <option>Graphic Design</option>
+                  <option>Illustration / Painting</option>
+                  <option>Motion Design</option>
+                  <option>Video Editing</option>
+                  <option>Filming</option>
+                  <option>Photography</option>
+                  <option>Web Design</option>
+                  <option>Other</option>
+                </select>
+              </DashboardField>
+
+              <DashboardField label="Description" id="work-description">
                 <textarea
                   id="work-description"
                   rows={4}
                   maxLength={2000}
+                  placeholder="Dimensions, deliverables, brand guidelines, files, etc."
                   value={form.description}
                   onChange={(event) =>
                     updateForm('description', event.target.value)
                   }
-                  className="w-full resize-y rounded-lg border border-zinc-300 bg-white px-3 py-2"
                 />
-              </div>
+              </DashboardField>
 
-              <div>
-                <label
-                  htmlFor="work-media-url"
-                  className="mb-1 block text-sm font-semibold"
-                >
-                  Media URL
-                </label>
+              <DashboardField label="Media URL" id="work-media-url">
                 <input
                   id="work-media-url"
                   type="url"
@@ -867,20 +901,10 @@ export function Dashboard() {
                   placeholder="https://..."
                   value={form.mediaUrl}
                   onChange={(event) => updateForm('mediaUrl', event.target.value)}
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
                 />
-                <p className="mt-1 text-xs text-zinc-500">
-                  Link to the image or video you want to submit.
-                </p>
-              </div>
+              </DashboardField>
 
-              <div>
-                <label
-                  htmlFor="work-thumbnail-url"
-                  className="mb-1 block text-sm font-semibold"
-                >
-                  Thumbnail URL <span className="font-normal text-zinc-500">(optional)</span>
-                </label>
+              <DashboardField label="Thumbnail URL" id="work-thumbnail-url">
                 <input
                   id="work-thumbnail-url"
                   type="url"
@@ -889,19 +913,15 @@ export function Dashboard() {
                   onChange={(event) =>
                     updateForm('thumbnailUrl', event.target.value)
                   }
-                  className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2"
                 />
-                <p className="mt-1 text-xs text-zinc-500">
-                  A preview image for the submission. Video submissions can use a separate thumbnail.
-                </p>
-              </div>
+              </DashboardField>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="rounded-lg bg-zinc-950 px-5 py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="dashboard-primary-button dashboard-modal-submit"
               >
-                {isSubmitting ? 'Submitting...' : 'Submit for review'}
+                {isSubmitting ? 'Submitting...' : 'Submit for Review'}
               </button>
             </form>
           </div>
@@ -920,23 +940,32 @@ function Card({ title, text }: { title: string; text: string }) {
   )
 }
 
-function StatusBadge({ status }: { status: WorkStatus }) {
-  const styles: Record<WorkStatus, string> = {
-    PENDING: 'bg-amber-100 text-amber-800',
-    APPROVED: 'bg-green-100 text-green-800',
-    DENIED: 'bg-red-100 text-red-800',
-  }
+function DashboardField({
+  label,
+  id,
+  children,
+}: {
+  label: string
+  id: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className="dashboard-field" htmlFor={id}>
+      <span className="type-subheading-4">{label}</span>
+      {children}
+    </label>
+  )
+}
 
+function StatusBadge({ status }: { status: WorkStatus }) {
   const labels: Record<WorkStatus, string> = {
-    PENDING: 'Pending review',
+    PENDING: 'Pending Review',
     APPROVED: 'Approved',
     DENIED: 'Denied',
   }
 
   return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-bold ${styles[status]}`}
-    >
+    <span className="dashboard-status-badge">
       {labels[status]}
     </span>
   )
@@ -947,28 +976,17 @@ function CommissionStatusBadge({
 }: {
   status: CommissionStatus
 }) {
-  const styles: Record<CommissionStatus, string> = {
-    SUBMITTED: 'bg-zinc-100 text-zinc-700',
-    REVIEWING: 'bg-amber-100 text-amber-800',
-    MATCHED: 'bg-indigo-100 text-indigo-800',
-    IN_PROGRESS: 'bg-blue-100 text-blue-800',
-    COMPLETED: 'bg-green-100 text-green-800',
-    DECLINED: 'bg-red-100 text-red-800',
-  }
-
   const labels: Record<CommissionStatus, string> = {
     SUBMITTED: 'Submitted',
-    REVIEWING: 'Under review',
+    REVIEWING: 'Under Review',
     MATCHED: 'Matched',
-    IN_PROGRESS: 'In progress',
+    IN_PROGRESS: 'In Progress',
     COMPLETED: 'Completed',
     DECLINED: 'Declined',
   }
 
   return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-bold ${styles[status]}`}
-    >
+    <span className="dashboard-status-badge">
       {labels[status]}
     </span>
   )

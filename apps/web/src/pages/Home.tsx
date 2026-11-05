@@ -19,7 +19,10 @@ export function Home() {
               <h2 className="type-subheading-1">Recent Work</h2>
             </div>
 
-            <Link to="/discover" className="home-featured-link">
+            <Link
+              to="/discover"
+              className="home-featured-link type-subheading-4"
+            >
               View All Work →
             </Link>
           </div>

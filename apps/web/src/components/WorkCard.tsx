@@ -11,20 +11,20 @@ export function WorkCard({ work }: { work: Work }) {
       </div>
 
       <div className="work-card-content">
-        <p className="work-card-category">
+        <p className="work-card-category type-body-2">
           {work.category}
         </p>
 
-        <h3 className="work-card-title">
+        <h3 className="work-card-title type-subheading-4">
           {work.title}
         </h3>
 
-        <p className="work-card-description">
+        <p className="work-card-description type-body-2">
           {work.description}
         </p>
 
         <Link
-          className="work-card-author"
+          className="work-card-author type-italic-label"
           to={`/members/${work.memberId}`}
         >
           {work.memberName}

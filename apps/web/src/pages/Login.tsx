@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { PageHeader } from '../components/PageHeader'
+
+import './Login.css'
 
 type LoginLocationState = {
   from?: {
@@ -34,61 +35,71 @@ export function Login() {
       navigate(destination, { replace: true })
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Unable to log in. Please try again.',
+        err instanceof Error
+          ? err.message
+          : 'Unable to log in. Please try again.',
       )
     }
   }
 
   return (
-    <section className="mx-auto max-w-xl px-5 py-16">
-      <PageHeader
-        eyebrow="Member Access"
-        title="Member Login"
-        description="Sign in to manage your SIDA profile and submitted work."
-      />
+    <section className="login-page">
 
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-5 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-      >
-        <div>
-          <label
-            htmlFor="email"
-            className="mb-2 block text-sm font-semibold text-zinc-700"
-          >
+      {/* PAGE INTRODUCTION */}
+      <header className="login-header">
+        <p className="login-eyebrow type-body-2">
+          MEMBER ACCESS
+        </p>
+
+        <h1 className="login-title type-header">
+          Member Login
+        </h1>
+
+        <p className="login-description type-body-2">
+          Sign in to manage your SIDA profile, submitted work, and assigned
+          commissions.
+        </p>
+      </header>
+
+      {/* LOGIN FORM */}
+      <form className="login-form" onSubmit={handleSubmit}>
+
+        <label className="login-field" htmlFor="email">
+          <span className="login-label type-subheading-4">
             Email
-          </label>
+          </span>
+
           <input
             id="email"
             type="email"
             autoComplete="email"
+            placeholder="you@houghton.edu"
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="login-input type-body-2"
           />
-        </div>
+        </label>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="mb-2 block text-sm font-semibold text-zinc-700"
-          >
+        <label className="login-field" htmlFor="password">
+          <span className="login-label type-subheading-4">
             Password
-          </label>
+          </span>
+
           <input
             id="password"
             type="password"
             autoComplete="current-password"
+            placeholder="Your Password"
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+            className="login-input type-body-2"
           />
-        </div>
+        </label>
 
         {error && (
-          <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+          <p role="alert" className="login-error type-body-2">
             {error}
           </p>
         )}
@@ -96,10 +107,11 @@ export function Login() {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full rounded-lg bg-zinc-950 px-4 py-3 text-sm font-semibold text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="login-submit type-body-1"
         >
-          {isLoading ? 'Signing in…' : 'Sign In'}
+          {isLoading ? 'Signing in...' : 'Sign In'}
         </button>
+
       </form>
     </section>
   )

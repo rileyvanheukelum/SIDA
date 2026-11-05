@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer className="site-footer">
 
-      <div className="footer-description">
+      <div className="type-body-2">
         Student Independent Designers and Artists - Built and maintained by
         SIDA students
       </div>
