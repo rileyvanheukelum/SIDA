@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PageHeader } from '../components/PageHeader'
+
+import './Members.css'
 
 type Member = {
   id: string
@@ -12,22 +13,31 @@ type Member = {
   role: 'MEMBER' | 'LEADERSHIP'
 }
 
+const API_URL = 'http://localhost:3000/api'
+
 export function Members() {
   const [members, setMembers] = useState<Member[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const leadershipTrackRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const controller = new AbortController()
 
     async function fetchMembers() {
       try {
-        const response = await fetch('http://localhost:3000/api/members', {
+        setIsLoading(true)
+        setError(null)
+
+        const response = await fetch(`${API_URL}/members`, {
           signal: controller.signal,
         })
 
         if (!response.ok) {
-          throw new Error(`Request failed with status ${response.status}`)
+          throw new Error(
+            `Unable to load members. Request failed with status ${response.status}.`,
+          )
         }
 
         const data: Member[] = await response.json()
@@ -54,77 +64,225 @@ export function Members() {
     return () => controller.abort()
   }, [])
 
+  const leadershipMembers = members.filter(
+    (member) => member.role === 'LEADERSHIP',
+  )
+
+  const regularMembers = members.filter(
+    (member) => member.role !== 'LEADERSHIP',
+  )
+
+  function scrollLeadership(direction: 'left' | 'right') {
+    const track = leadershipTrackRef.current
+
+    if (!track) return
+
+    const scrollAmount = track.clientWidth * 0.8
+
+    track.scrollBy({
+      left: direction === 'right' ? scrollAmount : -scrollAmount,
+      behavior: 'smooth',
+    })
+  }
+
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16">
-      <PageHeader
-        eyebrow="The community"
-        title="Meet the artists"
-        description="Browse SIDA members by discipline and explore their individual portfolios."
-      />
+    <main className="members-page">
+      <div className="members-page-inner">
+        {/* ==============================
+            PAGE HEADER
+        ============================== */}
 
-      {isLoading && (
-        <p className="py-12 text-center text-zinc-500">
-          Loading members...
-        </p>
-      )}
-
-      {error && (
-        <div className="my-8 rounded-xl border border-red-200 bg-red-50 p-5 text-red-700">
-          <h2 className="font-bold">Unable to load members</h2>
-          <p className="mt-1 text-sm">{error}</p>
-          <p className="mt-2 text-sm">
-            Make sure the SIDA API is running at localhost:3000.
+        <header className="members-page-header">
+          <p className="type-italic-label members-eyebrow">
+            COMMUNITY
           </p>
-        </div>
-      )}
 
-      {!isLoading && !error && members.length === 0 && (
-        <p className="py-12 text-center text-zinc-500">
-          No members have been added yet.
-        </p>
-      )}
+          <h1 className="type-header members-page-title">
+            Meet the artists
+          </h1>
 
-      {!isLoading && !error && members.length > 0 && (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {members.map((member) => (
-            <Link
-              key={member.id}
-              to={`/members/${member.id}`}
-              className="group overflow-hidden rounded-2xl border border-zinc-200 bg-white"
-            >
-              <img
-                src={
-                  member.profileImage ||
-                  'https://placehold.co/500x500?text=SIDA+Member'
-                }
-                alt={member.name}
-                className="aspect-square w-full object-cover"
-              />
+          <p className="type-body-2 members-page-description">
+            Browse SIDA members by discipline and explore their
+            individual portfolios.
+          </p>
+        </header>
 
-              <div className="p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">
-                  {member.title || member.role}
-                </p>
+        {/* ==============================
+            LOADING
+        ============================== */}
 
-                <h2 className="mt-1 text-2xl font-black group-hover:underline">
-                  {member.name}
-                </h2>
+        {isLoading && (
+          <p className="members-message type-body-2">
+            Loading members...
+          </p>
+        )}
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {member.disciplines.map((discipline) => (
-                    <span
-                      key={discipline}
-                      className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium"
-                    >
-                      {discipline}
-                    </span>
+        {/* ==============================
+            ERROR
+        ============================== */}
+
+        {error && (
+          <div className="members-error">
+            <h2 className="type-subheading-3">
+              Unable to load members
+            </h2>
+
+            <p className="type-body-2">{error}</p>
+
+            <p className="type-body-2">
+              Make sure the SIDA API is running at localhost:3000.
+            </p>
+          </div>
+        )}
+
+        {/* ==============================
+            EMPTY STATE
+        ============================== */}
+
+        {!isLoading && !error && members.length === 0 && (
+          <p className="members-message type-body-2">
+            No members have been added yet.
+          </p>
+        )}
+
+        {/* ==============================
+            MEMBER SECTIONS
+        ============================== */}
+
+        {!isLoading && !error && members.length > 0 && (
+          <>
+            {/* ==============================
+                LEADERSHIP
+            ============================== */}
+
+            {leadershipMembers.length > 0 && (
+              <section className="members-section members-leadership">
+                <div className="members-section-heading">
+                  <h2 className="type-subheading-1">
+                    Leadership
+                  </h2>
+
+                  {leadershipMembers.length > 1 && (
+                    <div className="leadership-controls">
+                      <button
+                        type="button"
+                        className="leadership-arrow"
+                        aria-label="Scroll leadership members left"
+                        onClick={() => scrollLeadership('left')}
+                      >
+                        &lt;
+                      </button>
+
+                      <button
+                        type="button"
+                        className="leadership-arrow"
+                        aria-label="Scroll leadership members right"
+                        onClick={() => scrollLeadership('right')}
+                      >
+                        &gt;
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  className="leadership-track"
+                  ref={leadershipTrackRef}
+                >
+                  {leadershipMembers.map((member) => (
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      variant="leadership"
+                    />
                   ))}
                 </div>
+              </section>
+            )}
+
+            {/* ==============================
+                GENERAL MEMBERS
+            ============================== */}
+
+            <section className="members-section members-directory">
+              <div className="members-section-heading">
+                <h2 className="type-subheading-1">
+                  Members
+                </h2>
               </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </section>
+
+              {regularMembers.length > 0 ? (
+                <div className="members-grid">
+                  {regularMembers.map((member) => (
+                    <MemberCard
+                      key={member.id}
+                      member={member}
+                      variant="regular"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="members-message type-body-2">
+                  No additional members have been added yet.
+                </p>
+              )}
+            </section>
+          </>
+        )}
+      </div>
+    </main>
+  )
+}
+
+/* ==============================
+   MEMBER CARD
+============================== */
+
+function MemberCard({
+  member,
+  variant,
+}: {
+  member: Member
+  variant: 'leadership' | 'regular'
+}) {
+  return (
+    <Link
+      to={`/members/${member.id}`}
+      className={`member-card member-card-${variant}`}
+    >
+      <div className="member-card-image">
+        <img
+          src={
+            member.profileImage ||
+            'https://placehold.co/500x500?text=SIDA+Member'
+          }
+          alt={`${member.name}'s profile`}
+          loading="lazy"
+        />
+      </div>
+
+      <div className="member-card-content">
+        <p className="member-card-title">
+          {member.title || member.role}
+        </p>
+
+        <h3 className="member-card-name">
+          {member.name}
+        </h3>
+
+        {member.disciplines.length > 0 && (
+          <div className="member-card-disciplines">
+            {member.disciplines.map((discipline) => (
+              <span
+                key={discipline}
+                className="member-discipline"
+              >
+                {discipline}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </Link>
   )
 }

@@ -70,7 +70,7 @@ export function CommissionRequest() {
 
       {/* PAGE INTRODUCTION */}
       <header className="commission-header">
-        <p className="commission-eyebrow type-body-2">
+        <p className="type-italic-label">
           WORK WITH SIDA
         </p>
 

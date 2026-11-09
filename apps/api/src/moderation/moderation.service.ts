@@ -139,4 +139,45 @@ export class ModerationService {
       },
     })
   }
+
+  async getHistory() {
+    return this.prisma.work.findMany({
+      where: {
+        status: {
+          in: ['APPROVED', 'DENIED'],
+        },
+        reviewedAt: {
+          not: null,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        category: true,
+        mediaUrl: true,
+        thumbnailUrl: true,
+        createdAt: true,
+        reviewedAt: true,
+        status: true,
+        member: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        commissionRequest: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+          },
+        },
+      },
+      orderBy: {
+        reviewedAt: 'desc',
+      },
+    })
+  }
 }

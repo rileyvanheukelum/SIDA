@@ -370,8 +370,36 @@ export function Dashboard() {
 
         <div className="dashboard-avatar">
           {member.profileImage ? (
-            <img src={member.profileImage} alt={`${member.name}'s profile`} />
+            <img
+              src={member.profileImage}
+              alt={`${member.name}'s profile`}
+              onError={(event) => {
+                event.currentTarget.style.display = 'none'
+              }}
+            />
           ) : null}
+
+          <div className="dashboard-avatar-placeholder" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="8"
+                r="4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="M4 21C4 16.5817 7.58172 13 12 13C16.4183 13 20 16.5817 20 21"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
         </div>
       </header>
 
@@ -450,10 +478,18 @@ export function Dashboard() {
                         .map(({ id, assignedAt, commissionRequest }) => (
                           <details className="dashboard-accordion" key={id}>
                             <summary className="dashboard-accordion-summary">
-                              <span className="type-subheading-4">
+                              <span className="dashboard-accordion-title type-subheading-4">
                                 {commissionRequest.title}
                               </span>
-                              <CommissionStatusBadge status={commissionRequest.status} />
+
+                              <span className="dashboard-accordion-meta">
+                                <CommissionStatusBadge status={commissionRequest.status} />
+
+                                <span
+                                  className="dashboard-accordion-chevron"
+                                  aria-hidden="true"
+                                />
+                              </span>
                             </summary>
 
                             <div className="dashboard-accordion-content">
@@ -556,10 +592,18 @@ export function Dashboard() {
                     .map(({ id, commissionRequest }) => (
                       <details className="dashboard-accordion" key={id}>
                         <summary className="dashboard-accordion-summary">
-                          <span className="type-subheading-4">
+                          <span className="dashboard-accordion-title type-subheading-4">
                             {commissionRequest.title}
                           </span>
-                          <CommissionStatusBadge status={commissionRequest.status} />
+
+                          <span className="dashboard-accordion-meta">
+                            <CommissionStatusBadge status={commissionRequest.status} />
+
+                            <span
+                              className="dashboard-accordion-chevron"
+                              aria-hidden="true"
+                            />
+                          </span>
                         </summary>
 
                         <div className="dashboard-accordion-content">
@@ -652,8 +696,18 @@ export function Dashboard() {
                 {works.map((work) => (
                   <details className="dashboard-accordion" key={work.id}>
                     <summary className="dashboard-accordion-summary">
-                      <span className="type-subheading-4">{work.title}</span>
-                      <StatusBadge status={work.status} />
+                      <span className="dashboard-accordion-title type-subheading-4">
+                        {work.title}
+                      </span>
+
+                      <span className="dashboard-accordion-meta">
+                        <StatusBadge status={work.status} />
+
+                        <span
+                          className="dashboard-accordion-chevron"
+                          aria-hidden="true"
+                        />
+                      </span>
                     </summary>
 
                     <div className="dashboard-work-content">
@@ -675,7 +729,45 @@ export function Dashboard() {
                         <img
                           src={work.thumbnailUrl || work.mediaUrl}
                           alt={`Preview of ${work.title}`}
+                          onError={(event) => {
+                            event.currentTarget.style.display = 'none'
+                          }}
                         />
+
+                        <div
+                          className="dashboard-work-preview-placeholder"
+                          aria-hidden="true"
+                        >
+                          <svg
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <rect
+                              x="3"
+                              y="3"
+                              width="18"
+                              height="18"
+                              rx="2"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                            <circle
+                              cx="8.5"
+                              cy="8.5"
+                              r="1.5"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                            />
+                            <path
+                              d="M21 15L16 10L5 21"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </div>
                       </div>
                     </div>
                   </details>

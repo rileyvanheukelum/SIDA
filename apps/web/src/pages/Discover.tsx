@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
+
 import { WorkCard } from '../components/WorkCard'
 import type { Work } from '../data/mock'
+
+import './Discover.css'
 
 const API_URL = 'http://localhost:3000/api'
 
@@ -48,36 +51,49 @@ export function Discover() {
   )
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16">
-      <p className="text-sm font-bold uppercase tracking-widest text-indigo-600">
-        Discover
-      </p>
+    <section className="discover-page">
+      {/* PAGE INTRODUCTION */}
+      <header className="discover-header">
+        <p className="discover-eyebrow type-italic-label">
+          DISCOVER
+        </p>
 
-      <h1 className="mt-2 text-5xl font-black">Student work</h1>
+        <h1 className="discover-title type-header">
+          Student work
+        </h1>
 
-      <p className="mt-4 max-w-2xl text-lg text-zinc-600">
-        Explore creative work from SIDA members.
-      </p>
+        <p className="discover-description type-body-2">
+          Explore creative work from SIDA members.
+        </p>
+      </header>
 
+      {/* LOADING STATE */}
       {isLoading ? (
-        <p className="my-12 text-zinc-600">Loading student work...</p>
+        <p className="discover-message type-body-2">
+          Loading student work...
+        </p>
       ) : error ? (
-        <p className="my-12 text-red-600">{error}</p>
+        /* ERROR STATE */
+        <p role="alert" className="discover-message discover-error type-body-2">
+          {error}
+        </p>
       ) : works.length === 0 ? (
-        <p className="my-12 text-zinc-600">
+        /* EMPTY STATE */
+        <p className="discover-message type-body-2">
           No approved work has been published yet. Check back soon!
         </p>
       ) : (
         <>
-          <div className="my-8 flex flex-wrap gap-2">
+          {/* CATEGORY FILTERS */}
+          <div className="discover-filters">
             {categories.map((category) => (
               <button
                 key={category}
+                type="button"
                 onClick={() => setFilter(category)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                  filter === category
-                    ? 'bg-zinc-950 text-white'
-                    : 'bg-zinc-100'
+                aria-pressed={filter === category}
+                className={`discover-filter ${
+                  filter === category ? 'is-active' : ''
                 }`}
               >
                 {category}
@@ -85,14 +101,15 @@ export function Discover() {
             ))}
           </div>
 
+          {/* WORK GRID */}
           {visibleWorks.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="discover-grid">
               {visibleWorks.map((work) => (
                 <WorkCard key={work.id} work={work} />
               ))}
             </div>
           ) : (
-            <p className="my-12 text-zinc-600">
+            <p className="discover-message type-body-2">
               No work found in this category.
             </p>
           )}

@@ -15,11 +15,18 @@ import { ModerationService } from './moderation.service'
 @UseGuards(AuthGuard('jwt'), RolesGuard)
 @Roles('LEADERSHIP')
 export class ModerationController {
-  constructor(private readonly moderationService: ModerationService) {}
+  constructor(
+    private readonly moderationService: ModerationService,
+  ) {}
 
   @Get('queue')
   getQueue() {
     return this.moderationService.getQueue()
+  }
+
+  @Get('history')
+  getHistory() {
+    return this.moderationService.getHistory()
   }
 
   @Patch(':workId/approve')
@@ -36,6 +43,9 @@ export class ModerationController {
 
   @Patch(':workId/deny')
   deny(@Param('workId') workId: string) {
-    return this.moderationService.reviewWork(workId, 'DENIED')
+    return this.moderationService.reviewWork(
+      workId,
+      'DENIED',
+    )
   }
 }

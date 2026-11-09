@@ -1,0 +1,360 @@
+/* ==============================
+   MEMBERS PAGE
+============================== */
+
+.members-page {
+  width: 100%;
+  padding: 24px 24px 32px;
+  background-color: var(--color-white);
+}
+
+.members-page-inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ==============================
+   PAGE HEADER
+============================== */
+
+.members-page-header {
+  margin-bottom: 24px;
+}
+
+.members-eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.members-page-title {
+  margin: 4px 0 0;
+  line-height: 1;
+}
+
+.members-page-description {
+  margin: 12px 0 0;
+}
+
+/* ==============================
+   SECTIONS
+============================== */
+
+.members-section {
+  width: 100%;
+}
+
+.members-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin-bottom: 12px;
+}
+
+.members-section-heading h2 {
+  margin: 0;
+}
+
+.members-leadership {
+  margin-bottom: 20px;
+}
+
+/* ==============================
+   LEADERSHIP CONTROLS
+============================== */
+
+.leadership-controls {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.leadership-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 50px;
+  height: 50px;
+
+  background-color: var(--color-white);
+  border: 1px solid var(--color-light-gray);
+  border-radius: 4px;
+
+  color: var(--color-black);
+
+  font-family: var(--font-display);
+  font-size: var(--text-body-1);
+  font-weight: var(--weight-bold);
+
+  cursor: pointer;
+
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.leadership-arrow:hover {
+  background-color: var(--color-tan);
+  border-color: var(--color-tan);
+}
+
+.leadership-arrow:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 3px;
+}
+
+/* ==============================
+   LEADERSHIP HORIZONTAL TRACK
+============================== */
+
+.leadership-track {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+
+  width: 100%;
+  overflow-x: auto;
+
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+
+  padding: 0 0 8px;
+
+  scrollbar-width: none;
+}
+
+.leadership-track::-webkit-scrollbar {
+  display: none;
+}
+
+.member-card-leadership {
+  flex: 0 0 calc((100% - 30px) / 4);
+  min-width: 0;
+
+  scroll-snap-align: start;
+}
+
+/* ==============================
+   MEMBERS DIRECTORY GRID
+============================== */
+
+.members-directory {
+  margin-top: 0;
+}
+
+.members-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* ==============================
+   MEMBER CARD
+============================== */
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+  overflow: hidden;
+
+  color: var(--color-white);
+  text-decoration: none;
+}
+
+/* ==============================
+   PROFILE IMAGE
+============================== */
+
+.member-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  overflow: hidden;
+  border-radius: 50%;
+
+  background-color: var(--color-light-gray);
+}
+
+.member-card-image img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* ==============================
+   MEMBER INFORMATION
+============================== */
+
+.member-card-content {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  min-width: 0;
+
+  margin-top: 10px;
+  padding: 10px;
+
+  background-color: var(--color-navy-blue);
+  border-radius: 10px;
+}
+
+/* ==============================
+   MEMBER TITLE
+============================== */
+
+.member-card-title {
+  margin: 0;
+
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+/* ==============================
+   MEMBER NAME
+============================== */
+
+.member-card-name {
+  margin: 4px 0 0;
+
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-4);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+}
+
+/* ==============================
+   DISCIPLINES
+============================== */
+
+.member-card-disciplines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  margin-top: 8px;
+}
+
+.member-discipline {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 2px 7px;
+
+  background-color: var(--color-white);
+  border-radius: 20px;
+
+  color: var(--color-black);
+
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: var(--weight-regular);
+  line-height: 1.3;
+}
+
+/* ==============================
+   MEMBER CARD INTERACTION
+============================== */
+
+.member-card:hover .member-card-name {
+  text-decoration: underline;
+}
+
+.member-card:focus-visible {
+  outline: 2px solid var(--color-orange);
+  outline-offset: 4px;
+}
+
+/* ==============================
+   LOADING / EMPTY / ERROR
+============================== */
+
+.members-message {
+  margin: 32px 0;
+  color: var(--color-black);
+}
+
+.members-error {
+  margin: 24px 0;
+  padding: 20px;
+
+  border: 1px solid var(--color-red);
+  border-radius: 8px;
+
+  color: var(--color-black);
+}
+
+.members-error h2 {
+  margin: 0 0 8px;
+}
+
+.members-error p {
+  margin: 8px 0 0;
+}
+
+/* ==============================
+   RESPONSIVE
+============================== */
+
+@media (max-width: 1000px) {
+  .members-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .member-card-leadership {
+    flex-basis: calc((100% - 20px) / 3);
+  }
+}
+
+@media (max-width: 700px) {
+  .members-page {
+    padding: 28px 20px 32px;
+  }
+
+  .members-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .member-card-leadership {
+    flex-basis: calc((100% - 10px) / 2);
+  }
+
+  .leadership-arrow {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 450px) {
+  .members-section-heading {
+    gap: 12px;
+  }
+
+  .leadership-controls {
+    gap: 6px;
+  }
+
+  .leadership-arrow {
+    width: 36px;
+    height: 36px;
+  }
+
+  .members-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .member-card-leadership {
+    flex-basis: 85%;
+  }
+}
