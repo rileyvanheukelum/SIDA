@@ -102,6 +102,7 @@ export class WorksService {
         thumbnailUrl: true,
         status: true,
         reviewedAt: true,
+        reviewNotes: true,
         createdAt: true,
       },
       orderBy: {
