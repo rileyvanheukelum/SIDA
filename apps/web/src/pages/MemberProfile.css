@@ -1,0 +1,207 @@
+/* Member profile page — uses the shared tokens from tokens.css. */
+
+.member-profile-page {
+  width: min(1320px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 28px 0 60px;
+  color: var(--color-black);
+  font-family: var(--font-display);
+}
+
+.member-profile-back {
+  display: inline-block;
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-bold);
+  line-height: 1.3;
+  text-decoration: none;
+}
+
+.member-profile-back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.member-profile-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 176px;
+  align-items: start;
+  gap: 48px;
+  margin-top: 28px;
+}
+
+.member-profile-copy {
+  min-width: 0;
+}
+
+.member-profile-eyebrow {
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.member-profile-name {
+  margin: 0;
+  font-family: var(--font-header);
+  font-size: clamp(48px, 5vw, 76px);
+  font-weight: var(--weight-regular);
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+
+.member-profile-disciplines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member-profile-discipline {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 3px 14px;
+  border: 1.5px solid var(--color-navy-blue);
+  border-radius: 999px;
+  color: var(--color-black);
+  background: var(--color-white);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--weight-bold);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.member-profile-bio {
+  max-width: 100%;
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+  line-height: 1.3;
+  white-space: pre-line;
+}
+
+.member-profile-avatar {
+  width: 176px;
+  height: 176px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--color-light-gray);
+}
+
+.member-profile-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.member-profile-portfolio {
+  margin-top: 32px;
+}
+
+.member-profile-section-title {
+  margin: 0 0 18px;
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-1);
+  font-weight: var(--weight-bold);
+  line-height: 1.15;
+}
+
+.member-profile-work-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 48px;
+  row-gap: 48px;
+  align-items: start;
+}
+
+/* Keep loading, empty, and error states consistent with the site typography. */
+.member-profile-message {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  line-height: 1.45;
+}
+
+.member-profile-error {
+  color: var(--color-red);
+}
+
+.member-profile-state {
+  width: min(1320px, calc(100% - 48px));
+  min-height: 55vh;
+  margin: 0 auto;
+  padding: 80px 0;
+  font-family: var(--font-display);
+}
+
+.member-profile-state .member-profile-back {
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .member-profile-work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 28px;
+    row-gap: 32px;
+  }
+
+  .member-profile-intro {
+    grid-template-columns: minmax(0, 1fr) 144px;
+    gap: 28px;
+  }
+
+  .member-profile-avatar {
+    width: 144px;
+    height: 144px;
+  }
+}
+
+@media (max-width: 600px) {
+  .member-profile-page,
+  .member-profile-state {
+    width: min(100% - 32px, 520px);
+  }
+
+  .member-profile-page {
+    padding-top: 22px;
+    padding-bottom: 40px;
+  }
+
+  .member-profile-intro {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 24px;
+  }
+
+  .member-profile-avatar {
+    grid-row: 1;
+    width: 112px;
+    height: 112px;
+  }
+
+  .member-profile-name {
+    font-size: clamp(42px, 12vw, 60px);
+  }
+
+  .member-profile-section-title {
+    font-size: var(--text-subheading-2);
+  }
+
+  .member-profile-portfolio {
+    margin-top: 28px;
+  }
+
+  .member-profile-work-grid {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+  }
+}

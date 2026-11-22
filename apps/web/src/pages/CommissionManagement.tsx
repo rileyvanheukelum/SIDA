@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
+import './CommissionManagement.css'
 
 const API_URL = 'http://localhost:3000/api'
 
@@ -61,6 +62,10 @@ function getAvailableStatuses(status: CommissionStatus) {
   return [status, ...ALLOWED_TRANSITIONS[status]]
 }
 
+function formatDate(date: string | null) {
+  return date ? new Date(date).toLocaleDateString() : 'Not specified'
+}
+
 export function CommissionManagement() {
   const { accessToken } = useAuth()
 
@@ -69,9 +74,9 @@ export function CommissionManagement() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [processingId, setProcessingId] = useState<string | null>(null)
-  const [assignmentProcessingId, setAssignmentProcessingId] = useState<
-    string | null
-  >(null)
+  const [assignmentProcessingId, setAssignmentProcessingId] = useState<string | null>(null)
+  const [expandedAssignmentsId, setExpandedAssignmentsId] = useState<string | null>(null)
+  const [assignmentSearch, setAssignmentSearch] = useState('')
 
   async function loadRequests() {
     if (!accessToken) {
@@ -85,9 +90,7 @@ export function CommissionManagement() {
 
     try {
       const response = await fetch(`${API_URL}/commissions`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+        headers: { Authorization: `Bearer ${accessToken}` },
       })
 
       if (!response.ok) {
@@ -95,8 +98,6 @@ export function CommissionManagement() {
       }
 
       const data: CommissionRequest[] = await response.json()
-
-      // Ensure requests without assignments still have an array.
       setRequests(
         data.map((request) => ({
           ...request,
@@ -118,14 +119,9 @@ export function CommissionManagement() {
     if (!accessToken) return
 
     try {
-      const response = await fetch(
-        `${API_URL}/commissions/assignable-members`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      )
+      const response = await fetch(`${API_URL}/commissions/assignable-members`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
 
       if (!response.ok) {
         throw new Error(`Unable to load assignable members (${response.status}).`)
@@ -145,12 +141,11 @@ export function CommissionManagement() {
   useEffect(() => {
     loadRequests()
     loadMembers()
+    // The fetches should be refreshed when the authenticated session changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
-  async function updateStatus(
-    requestId: string,
-    status: CommissionStatus,
-  ) {
+  async function updateStatus(requestId: string, status: CommissionStatus) {
     if (!accessToken) {
       setError('You must be logged in to update commission requests.')
       return
@@ -160,25 +155,20 @@ export function CommissionManagement() {
     setError(null)
 
     try {
-      const response = await fetch(
-        `${API_URL}/commissions/${requestId}/status`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ status }),
+      const response = await fetch(`${API_URL}/commissions/${requestId}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
         },
-      )
+        body: JSON.stringify({ status }),
+      })
 
       if (!response.ok) {
         throw new Error(`Unable to update the request (${response.status}).`)
       }
 
-      const updated: { id: string; status: CommissionStatus } =
-        await response.json()
-
+      const updated: { id: string; status: CommissionStatus } = await response.json()
       setRequests((current) =>
         current.map((request) =>
           request.id === updated.id
@@ -221,11 +211,7 @@ export function CommissionManagement() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
-          ...(isAssigned
-            ? {}
-            : {
-                body: JSON.stringify({ memberId }),
-              }),
+          ...(isAssigned ? {} : { body: JSON.stringify({ memberId }) }),
         },
       )
 
@@ -236,7 +222,6 @@ export function CommissionManagement() {
       }
 
       if (isAssigned) {
-        // Remove the artist from this commission in local state.
         setRequests((current) =>
           current.map((request) =>
             request.id === requestId
@@ -250,16 +235,11 @@ export function CommissionManagement() {
           ),
         )
       } else {
-        // The POST endpoint returns the newly created assignment.
         const assignment: CommissionAssignment = await response.json()
-
         setRequests((current) =>
           current.map((request) =>
             request.id === requestId
-              ? {
-                  ...request,
-                  assignments: [...request.assignments, assignment],
-                }
+              ? { ...request, assignments: [...request.assignments, assignment] }
               : request,
           ),
         )
@@ -275,200 +255,245 @@ export function CommissionManagement() {
     }
   }
 
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-16">
-      <p className="text-sm font-bold uppercase tracking-widest text-indigo-600">
-        Leadership only
-      </p>
+  function toggleAssignmentDropdown(requestId: string) {
+    setExpandedAssignmentsId((current) =>
+      current === requestId ? null : requestId,
+    )
+    setAssignmentSearch('')
+  }
 
-      <h1 className="mt-2 text-5xl font-black">Commission requests</h1>
+  const activeRequests = useMemo(
+    () =>
+      requests.filter(
+        (request) =>
+          request.status !== 'COMPLETED' && request.status !== 'DECLINED',
+      ),
+    [requests],
+  )
 
-      <p className="mt-4 max-w-2xl text-zinc-600">
-        Review incoming project requests, contact information, requirements,
-        assignments, and current progress.
-      </p>
+  const completedRequests = useMemo(
+    () =>
+      requests.filter(
+        (request) =>
+          request.status === 'COMPLETED' || request.status === 'DECLINED',
+      ),
+    [requests],
+  )
 
-      {error && (
-        <div
-          role="alert"
-          className="mt-8 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
-        >
-          {error}
-        </div>
-      )}
+  const filteredMembers = useMemo(() => {
+    const search = assignmentSearch.trim().toLowerCase()
+    if (!search) return members
 
-      {isLoading ? (
-        <p className="mt-10 text-zinc-500">Loading commission requests...</p>
-      ) : requests.length === 0 ? (
-        <div className="mt-10 rounded-2xl border border-zinc-200 bg-white p-8 text-center">
-          <h2 className="text-xl font-bold">No commission requests yet</h2>
-          <p className="mt-2 text-sm text-zinc-500">
-            New public requests will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className="mt-10 space-y-5">
-          {requests.map((request) => (
-            <article
-              key={request.id}
-              className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm"
-            >
-              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-indigo-600">
-                    {request.category}
-                  </p>
-                  <h2 className="mt-1 text-2xl font-black">{request.title}</h2>
-                  <p className="mt-2 text-sm text-zinc-500">
-                    Submitted {new Date(request.createdAt).toLocaleString()}
-                  </p>
-                </div>
+    return members.filter((member) =>
+      [member.name, member.title ?? '', member.email]
+        .join(' ')
+        .toLowerCase()
+        .includes(search),
+    )
+  }, [members, assignmentSearch])
 
-                <label className="block sm:min-w-52">
-                  <span className="mb-2 block text-sm font-bold">
-                    Request status
-                  </span>
-                  <select
-                    value={request.status}
-                    disabled={
-                      processingId !== null ||
-                      ALLOWED_TRANSITIONS[request.status].length === 0
-                    }
-                    onChange={(event) => {
-                      const nextStatus = event.target.value as CommissionStatus
+  function renderCommission(request: CommissionRequest, index: number) {
+    const isAssignmentDropdownOpen = expandedAssignmentsId === request.id
+    const isAssignmentBusy = assignmentProcessingId === request.id
 
-                      if (
-                        window.confirm(
-                          `Change this request from ${formatStatus(request.status)} to ${formatStatus(nextStatus)}?`,
-                        )
-                      ) {
-                        updateStatus(request.id, nextStatus)
-                      }
-                    }}
-                    className="w-full rounded-lg border border-zinc-300 px-3 py-2 disabled:opacity-50"
-                  >
-                    {getAvailableStatuses(request.status).map((status) => (
-                      <option key={status} value={status}>
-                        {formatStatus(status)}
-                      </option>
-                    ))}
-                  </select>
-                  {processingId === request.id && (
-                    <span className="mt-1 block text-xs text-zinc-500">
-                      Updating...
-                    </span>
-                  )}
-                </label>
+    return (
+      <details
+        className="commission-accordion"
+        key={request.id}
+        open={index === 0}
+      >
+        <summary className="commission-accordion-summary">
+          <span className="commission-accordion-title type-subheading-4">
+            {request.title}
+          </span>
+          <span className="commission-accordion-meta">
+            <span className="commission-status-badge">
+              {formatStatus(request.status)}
+            </span>
+            <span className="commission-accordion-chevron" aria-hidden="true" />
+          </span>
+        </summary>
+
+        <div className="commission-accordion-content">
+          <div className="commission-details-grid">
+            <div className="commission-details-primary">
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Project Description</h3>
+                <p className="type-body-2">{request.description}</p>
               </div>
 
-              <div className="mt-6 grid gap-6 border-t border-zinc-100 pt-5 md:grid-cols-2">
-                <div>
-                  <h3 className="text-sm font-bold">Project description</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">
-                    {request.description}
-                  </p>
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Requirements</h3>
+                <p className="type-body-2">
+                  {request.requirements || 'No additional requirements provided.'}
+                </p>
+              </div>
+            </div>
 
-                  <h3 className="mt-5 text-sm font-bold">Requirements</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">
-                    {request.requirements ||
-                      'No additional requirements provided.'}
-                  </p>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-bold">Contact information</h3>
-                  <p className="mt-2 text-sm text-zinc-600">
-                    {request.contactName}
-                  </p>
-                  <a
-                    href={`mailto:${request.contactEmail}`}
-                    className="mt-1 inline-block text-sm font-semibold text-indigo-600 hover:underline"
-                  >
-                    {request.contactEmail}
-                  </a>
-
-                  <h3 className="mt-5 text-sm font-bold">Timeline</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">
-                    {request.timeline || 'No timeline provided.'}
-                  </p>
-
-                  <h3 className="mt-5 text-sm font-bold">Due date</h3>
-                  <p className="mt-2 text-sm text-zinc-600">
-                    {request.dueDate
-                      ? new Date(request.dueDate).toLocaleDateString()
-                      : 'No due date provided.'}
-                  </p>
-                </div>
+            <div className="commission-details-secondary">
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Due Date</h3>
+                <p className="type-body-2">{formatDate(request.dueDate)}</p>
               </div>
 
-              <div className="mt-6 border-t border-zinc-100 pt-5">
-                <h3 className="text-sm font-bold">Assigned artists</h3>
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Submitted</h3>
+                <p className="type-body-2">
+                  {new Date(request.createdAt).toLocaleString()}
+                </p>
+              </div>
 
-                {request.assignments.length === 0 ? (
-                  <p className="mt-2 text-sm text-zinc-500">
-                    No artists assigned yet.
-                  </p>
-                ) : (
-                  <ul className="mt-3 flex flex-wrap gap-2">
-                    {request.assignments.map((assignment) => (
-                      <li
-                        key={assignment.id}
-                        className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm"
-                      >
-                        <span className="font-semibold text-zinc-800">
-                          {assignment.member.name}
-                        </span>
-                        {assignment.member.title && (
-                          <span className="ml-2 text-zinc-500">
-                            {assignment.member.title}
-                          </span>
-                        )}
-                        <button
-                          type="button"
-                          disabled={assignmentProcessingId === request.id}
-                          onClick={() =>
-                            updateAssignment(
-                              request.id,
-                              assignment.member.id,
-                              true,
-                            )
-                          }
-                          className="ml-3 font-bold text-red-600 hover:text-red-800 disabled:opacity-50"
-                          aria-label={`Remove ${assignment.member.name} from ${request.title}`}
-                        >
-                          Remove
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Timeline</h3>
+                <p className="type-body-2">
+                  {request.timeline || 'No timeline provided.'}
+                </p>
+              </div>
 
-                <div className="mt-5">
-                  <h4 className="text-sm font-semibold">Manage assignments</h4>
-                  <p className="mt-1 text-xs text-zinc-500">
-                    Select one or more members to assign them to this project.
-                  </p>
+              <div className="commission-detail">
+                <h3 className="type-subheading-4">Contact</h3>
+                <p className="type-body-2">{request.contactName}</p>
+                <a
+                  className="commission-contact-link type-body-2"
+                  href={`mailto:${request.contactEmail}`}
+                >
+                  {request.contactEmail}
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div className="commission-assigned">
+            <h3 className="type-subheading-4">Assigned Artists</h3>
+            {request.assignments.length === 0 ? (
+              <p className="commission-no-assignees type-body-2">
+                No artists assigned yet.
+              </p>
+            ) : (
+              <ul className="commission-assignee-list">
+                {request.assignments.map((assignment) => (
+                  <li className="commission-assignee-chip" key={assignment.id}>
+                    <span>{assignment.member.name}</span>
+                    {assignment.member.title && (
+                      <span className="commission-assignee-title">
+                        {assignment.member.title}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="commission-controls">
+            <label className="commission-control-field">
+              <span className="type-subheading-4">Commission Status</span>
+              <select
+                value={request.status}
+                disabled={
+                  processingId !== null ||
+                  ALLOWED_TRANSITIONS[request.status].length === 0
+                }
+                onChange={(event) => {
+                  const nextStatus = event.target.value as CommissionStatus
+                  if (
+                    window.confirm(
+                      `Change this request from ${formatStatus(request.status)} to ${formatStatus(nextStatus)}?`,
+                    )
+                  ) {
+                    updateStatus(request.id, nextStatus)
+                  }
+                }}
+              >
+                {getAvailableStatuses(request.status).map((status) => (
+                  <option key={status} value={status}>
+                    {formatStatus(status)}
+                  </option>
+                ))}
+              </select>
+              {processingId === request.id && (
+                <span className="commission-control-hint">Updating status...</span>
+              )}
+            </label>
+
+            <div className="commission-control-field commission-assignment-control">
+              <span className="type-subheading-4">Manage Assignments</span>
+              <button
+                className="commission-assignment-trigger"
+                type="button"
+                aria-expanded={isAssignmentDropdownOpen}
+                aria-controls={`assignment-list-${request.id}`}
+                onClick={() => toggleAssignmentDropdown(request.id)}
+              >
+                <span>
+                  {request.assignments.length
+                    ? `${request.assignments.length} artist${request.assignments.length === 1 ? '' : 's'} assigned`
+                    : 'Add/Remove Assignments'}
+                </span>
+                <span
+                  className={`commission-select-chevron ${isAssignmentDropdownOpen ? 'is-open' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+
+              {isAssignmentDropdownOpen && (
+                <div
+                  className="commission-assignment-menu"
+                  id={`assignment-list-${request.id}`}
+                >
+                  <label className="commission-member-search">
+                    <span className="sr-only">Search available members</span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        cx="10.8"
+                        cy="10.8"
+                        r="6.8"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                      />
+                      <path
+                        d="m16 16 4.5 4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    <input
+                      type="search"
+                      value={assignmentSearch}
+                      onChange={(event) => setAssignmentSearch(event.target.value)}
+                      placeholder="Search members..."
+                    />
+                  </label>
 
                   {members.length === 0 ? (
-                    <p className="mt-3 text-sm text-zinc-500">
+                    <p className="commission-member-empty">
                       No assignable members available.
                     </p>
+                  ) : filteredMembers.length === 0 ? (
+                    <p className="commission-member-empty">
+                      No members match your search.
+                    </p>
                   ) : (
-                    <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                      {members.map((member) => {
+                    <div className="commission-member-list">
+                      {filteredMembers.map((member) => {
                         const isAssigned = request.assignments.some(
                           (assignment) => assignment.member.id === member.id,
                         )
 
                         return (
                           <label
+                            className="commission-member-option"
                             key={member.id}
-                            className="flex items-center gap-3 rounded-lg border border-zinc-200 p-3 text-sm hover:bg-zinc-50"
                           >
                             <input
                               type="checkbox"
                               checked={isAssigned}
-                              disabled={assignmentProcessingId === request.id}
+                              disabled={isAssignmentBusy}
                               onChange={() =>
                                 updateAssignment(
                                   request.id,
@@ -476,33 +501,133 @@ export function CommissionManagement() {
                                   isAssigned,
                                 )
                               }
-                              className="h-4 w-4 accent-indigo-600"
                             />
-                            <span>
-                              <span className="block font-semibold text-zinc-800">
+                            <span className="commission-member-copy">
+                              <span className="commission-member-name">
                                 {member.name}
                               </span>
-                              <span className="block text-xs text-zinc-500">
+                              <span className="commission-member-subtitle">
                                 {member.title || member.email}
                               </span>
                             </span>
+                            {isAssigned && (
+                              <span className="commission-assigned-label">
+                                Assigned
+                              </span>
+                            )}
                           </label>
                         )
                       })}
                     </div>
                   )}
 
-                  {assignmentProcessingId === request.id && (
-                    <p className="mt-2 text-xs text-zinc-500">
+                  {isAssignmentBusy && (
+                    <p className="commission-control-hint">
                       Updating assignments...
                     </p>
                   )}
                 </div>
-              </div>
-            </article>
-          ))}
+              )}
+            </div>
+          </div>
+        </div>
+      </details>
+    )
+  }
+
+  return (
+    <main className="commission-management-page">
+      <header className="commission-page-header">
+        <p className="type-body-2">REVIEW COMMISSION REQUESTS</p>
+        <h1 className="type-header">Commissions</h1>
+        <p className="type-body-2">
+          Review incoming project requests, contact information, requirements,
+          assignments, and current progress.
+        </p>
+      </header>
+
+      {error && (
+        <div className="commission-alert" role="alert">
+          {error}
         </div>
       )}
-    </section>
+
+      <div className="commission-management-panel">
+        <section
+          className="commission-section"
+          aria-labelledby="active-commissions-heading"
+        >
+          <div className="commission-section-heading">
+            <div>
+              <h2 id="active-commissions-heading" className="type-subheading-1">
+                Active Commissions
+              </h2>
+              <p className="type-body-2">
+                Commission requests that are currently being reviewed or worked on.
+              </p>
+            </div>
+            <span
+              className="commission-count commission-count-active"
+              aria-label={`${activeRequests.length} active commissions`}
+            >
+              {activeRequests.length}
+            </span>
+          </div>
+
+          {isLoading ? (
+            <p className="commission-empty type-body-2">
+              Loading commission requests...
+            </p>
+          ) : activeRequests.length === 0 ? (
+            <p className="commission-empty type-body-2">
+              There are no active commission requests.
+            </p>
+          ) : (
+            <div className="commission-accordion-list">
+              {activeRequests.map((request, index) =>
+                renderCommission(request, index),
+              )}
+            </div>
+          )}
+        </section>
+
+        <section
+          className="commission-section commission-history-section"
+          aria-labelledby="completed-commissions-heading"
+        >
+          <div className="commission-section-heading">
+            <div>
+              <h2
+                id="completed-commissions-heading"
+                className="type-subheading-1"
+              >
+                Completed Commissions
+              </h2>
+              <p className="type-body-2">
+                A record of commissions that have previously been completed or declined.
+              </p>
+            </div>
+            <span
+              className="commission-count commission-count-history"
+              aria-label={`${completedRequests.length} completed or declined commissions`}
+            >
+              {completedRequests.length}
+            </span>
+          </div>
+
+          {isLoading ? null : completedRequests.length === 0 ? (
+            <p className="commission-empty type-body-2">
+              No completed or declined commissions yet.
+            </p>
+          ) : (
+            <div className="commission-accordion-list">
+              {completedRequests.map((request, index) =>
+                renderCommission(request, index),
+              )}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
   )
 }

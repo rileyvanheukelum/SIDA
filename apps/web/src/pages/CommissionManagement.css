@@ -1,0 +1,648 @@
+/* =========================================
+   COMMISSION MANAGEMENT PAGE
+========================================= */
+
+.commission-management-page {
+  width: min(65%, 1600px);
+  min-width: 0;
+  margin: 0 auto;
+  padding: 24px 0 32px;
+  box-sizing: border-box;
+  color: var(--color-black);
+}
+
+.commission-page-header {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.commission-page-header > p {
+  margin: 0;
+}
+
+.commission-page-header > h1 {
+  margin: 4px 0 0;
+  line-height: 1;
+}
+
+.commission-page-header > p:last-child {
+  margin-top: 8px;
+}
+
+/* =========================================
+   MAIN PANEL AND SECTION HEADINGS
+========================================= */
+
+.commission-management-panel {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 32px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 16px;
+  background: var(--color-white);
+}
+
+.commission-section + .commission-section {
+  margin-top: 8px;
+}
+
+.commission-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.commission-section-heading > div {
+  min-width: 0;
+}
+
+.commission-section-heading h2 {
+  margin: 0;
+  line-height: 1.15;
+}
+
+.commission-section-heading p {
+  margin: 4px 0 0;
+}
+
+.commission-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 50px;
+  width: 50px;
+  height: 50px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-navy-blue);
+  border-radius: 50%;
+  color: var(--color-black);
+  background: var(--color-white);
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-bold);
+}
+
+.commission-count-active {
+  border-color: var(--color-yellow);
+  background: var(--color-yellow);
+}
+
+.commission-count-history {
+  border-color: var(--color-navy-blue);
+  background: var(--color-white);
+}
+
+.commission-history-section {
+  margin-top: 8px;
+}
+
+.commission-empty {
+  margin: 12px 0;
+  color: #666666;
+}
+
+/* =========================================
+   ALERTS
+========================================= */
+
+.commission-alert {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border: 1px solid #e8bcbc;
+  border-radius: 5px;
+  background: #fceaea;
+  color: #9d2525;
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+}
+
+/* =========================================
+   ACCORDION LIST
+========================================= */
+
+.commission-accordion-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+}
+
+.commission-accordion {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: visible;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 8px;
+  background: var(--color-white);
+}
+
+.commission-accordion[open] {
+  overflow: visible;
+}
+
+.commission-accordion-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  gap: 16px;
+  padding: 12px 16px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.commission-accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.commission-accordion-summary::marker {
+  content: "";
+}
+
+.commission-accordion-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.commission-accordion-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.commission-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 24px;
+  box-sizing: border-box;
+  padding: 2px 12px;
+  border: 1px solid var(--color-navy-blue);
+  border-radius: 999px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: var(--text-subheading-4);
+  font-weight: var(--weight-bold);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.commission-accordion-chevron {
+  display: inline-block;
+  position: relative;
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border-right: 2.5px solid var(--color-black);
+  border-bottom: 2.5px solid var(--color-black);
+  transform: rotate(45deg);
+  transform-origin: center;
+  transition: transform 180ms ease;
+}
+
+.commission-accordion[open] .commission-accordion-chevron {
+  transform: rotate(225deg);
+}
+
+/* =========================================
+   EXPANDED COMMISSION DETAILS
+========================================= */
+
+.commission-accordion-content {
+  min-width: 0;
+  padding: 0 16px 16px;
+}
+
+.commission-details-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(220px, 0.85fr);
+  gap: 32px;
+  min-width: 0;
+}
+
+.commission-details-primary,
+.commission-details-secondary {
+  min-width: 0;
+}
+
+.commission-detail {
+  min-width: 0;
+  margin-top: 8px;
+}
+
+.commission-detail h3,
+.commission-detail p {
+  margin: 0;
+}
+
+.commission-detail p {
+  margin-top: 4px;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.commission-contact-link {
+  display: inline-block;
+  margin-top: 2px;
+  color: var(--color-navy-blue);
+  text-decoration: underline;
+  overflow-wrap: anywhere;
+}
+
+.commission-assigned {
+  margin-top: 16px;
+}
+
+.commission-assigned > h3 {
+  margin: 0;
+}
+
+.commission-no-assignees {
+  margin: 6px 0 0;
+  color: #666666;
+}
+
+.commission-assignee-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.commission-assignee-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+  box-sizing: border-box;
+  padding: 4px 12px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 999px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+.commission-assignee-title {
+  color: #666666;
+}
+
+/* =========================================
+   STATUS AND ASSIGNMENT CONTROLS
+========================================= */
+
+.commission-controls {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.commission-control-field {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  gap: 6px;
+}
+
+.commission-control-field > span:first-child {
+  line-height: 1.2;
+}
+
+.commission-control-field select,
+.commission-assignment-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 250px;
+  min-height: 54px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 4px;
+  background: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+  font-weight: var(--weight-regular);
+  text-align: left;
+}
+
+.commission-control-field select {
+  cursor: pointer;
+}
+
+.commission-control-field select:focus,
+.commission-assignment-trigger:focus-visible,
+.commission-member-search:focus-within {
+  outline: 2px solid var(--color-yellow);
+  outline-offset: 1px;
+}
+
+.commission-control-field select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.commission-assignment-control {
+  width: 310px;
+}
+
+.commission-assignment-trigger {
+  width: 100%;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.commission-assignment-trigger:hover {
+  background: #fafafa;
+}
+
+.commission-assignment-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.commission-select-chevron {
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-right: 1.7px solid var(--color-black);
+  border-bottom: 1.7px solid var(--color-black);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform 160ms ease;
+}
+
+.commission-select-chevron.is-open {
+  transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.commission-control-hint {
+  color: #666666;
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+
+/* =========================================
+   ASSIGNMENT DROPDOWN
+========================================= */
+
+.commission-assignment-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 8px;
+  background: var(--color-white);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.commission-member-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 5px;
+  background: var(--color-white);
+}
+
+.commission-member-search svg {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  color: #666666;
+}
+
+.commission-member-search input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: var(--text-body-2);
+}
+
+.commission-member-search input::placeholder {
+  color: #999999;
+}
+
+.commission-member-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 240px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.commission-member-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px 6px;
+  border-bottom: 1px solid #eeeeee;
+  cursor: pointer;
+}
+
+.commission-member-option:last-child {
+  border-bottom: 0;
+}
+
+.commission-member-option:hover {
+  background: #f8f8f8;
+}
+
+.commission-member-option > input {
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--color-navy-blue);
+  cursor: pointer;
+}
+
+.commission-member-option > input:disabled {
+  cursor: not-allowed;
+}
+
+.commission-member-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+
+.commission-member-name {
+  color: var(--color-black);
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: var(--weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.commission-member-subtitle {
+  color: #666666;
+  font-family: var(--font-display);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.commission-assigned-label {
+  flex: 0 0 auto;
+  color: var(--color-navy-blue);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+}
+
+.commission-member-empty {
+  margin: 12px 4px 4px;
+  color: #666666;
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================
+   RESPONSIVE: TABLET
+========================================= */
+
+@media (max-width: 1100px) {
+  .commission-management-page {
+    width: calc(100% - 48px);
+  }
+
+  .commission-management-panel {
+    padding: 26px;
+  }
+
+  .commission-details-grid {
+    gap: 22px;
+  }
+}
+
+/* =========================================
+   RESPONSIVE: MOBILE
+========================================= */
+
+@media (max-width: 700px) {
+  .commission-management-page {
+    width: calc(100% - 24px);
+    padding-top: 24px;
+    padding-bottom: 40px;
+  }
+
+  .commission-page-header {
+    margin-bottom: 20px;
+  }
+
+  .commission-page-header > h1 {
+    font-size: clamp(48px, 11vw, 72px);
+  }
+
+  .commission-management-panel {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .commission-section-heading {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .commission-count {
+    flex-basis: 42px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .commission-accordion-summary {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .commission-accordion-meta {
+    gap: 8px;
+  }
+
+  .commission-status-badge {
+    padding: 2px 8px;
+    font-size: 14px;
+  }
+
+  .commission-accordion-content {
+    padding: 0 12px 14px;
+  }
+
+  .commission-details-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .commission-controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .commission-control-field,
+  .commission-control-field select,
+  .commission-assignment-control {
+    width: 100%;
+  }
+
+  .commission-assignment-menu {
+    position: static;
+    margin-top: 6px;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .commission-accordion-chevron,
+  .commission-select-chevron {
+    transition: none;
+  }
+}

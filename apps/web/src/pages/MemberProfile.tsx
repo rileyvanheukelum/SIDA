@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import type { Work } from '../data/mock'
 import { WorkCard } from '../components/WorkCard'
+import './MemberProfile.css'
 
 type Member = {
   id: string
@@ -61,9 +62,7 @@ export function MemberProfile() {
             : 'An unexpected error occurred.',
         )
       } finally {
-        if (!controller.signal.aborted) {
-          setIsLoading(false)
-        }
+        if (!controller.signal.aborted) setIsLoading(false)
       }
     }
 
@@ -91,9 +90,7 @@ export function MemberProfile() {
             : 'An unexpected error occurred.',
         )
       } finally {
-        if (!controller.signal.aborted) {
-          setIsPortfolioLoading(false)
-        }
+        if (!controller.signal.aborted) setIsPortfolioLoading(false)
       }
     }
 
@@ -105,106 +102,104 @@ export function MemberProfile() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-4xl px-5 py-20 text-zinc-500">
-        Loading member...
-      </div>
+      <main className="member-profile-state">
+        <p className="type-body-2">Loading member...</p>
+      </main>
     )
   }
 
   if (notFound) {
     return (
-      <div className="mx-auto max-w-4xl px-5 py-20">
-        <p>Member not found.</p>
-        <Link to="/members" className="mt-4 inline-block text-sm font-semibold">
-          ← All members
+      <main className="member-profile-state">
+        <p className="type-subheading-2">Member not found.</p>
+        <Link to="/members" className="member-profile-back">
+          ← All Members
         </Link>
-      </div>
+      </main>
     )
   }
 
   if (error || !member) {
     return (
-      <div className="mx-auto max-w-4xl px-5 py-20">
-        <p className="font-bold text-red-700">Unable to load member</p>
-        <p className="mt-2 text-sm text-zinc-600">
-          {error || 'An unexpected error occurred.'}
+      <main className="member-profile-state">
+        <p className="type-subheading-2 member-profile-error">
+          Unable to load member
         </p>
-        <Link to="/members" className="mt-4 inline-block text-sm font-semibold">
-          ← All members
+        <p className="type-body-2">{error || 'An unexpected error occurred.'}</p>
+        <Link to="/members" className="member-profile-back">
+          ← All Members
         </Link>
-      </div>
+      </main>
     )
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-16">
-      <Link to="/members" className="text-sm font-semibold">
-        ← All members
+    <main className="member-profile-page">
+      <Link to="/members" className="member-profile-back">
+        ← All Members
       </Link>
 
-      <div className="mt-8 grid gap-10 md:grid-cols-[280px_1fr]">
-        <img
-          src={
-            member.profileImage ||
-            'https://placehold.co/500x500?text=SIDA+Member'
-          }
-          alt={member.name}
-          className="aspect-square w-full rounded-2xl object-cover"
-        />
-
-        <div>
-          <p className="font-bold uppercase tracking-widest text-indigo-600">
+      <section className="member-profile-intro" aria-label="Member information">
+        <div className="member-profile-copy">
+          <p className="member-profile-eyebrow">
             {member.title || member.role}
           </p>
 
-          <h1 className="mt-2 text-5xl font-black">{member.name}</h1>
+          <h1 className="member-profile-name">{member.name}</h1>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            {member.disciplines.map((discipline) => (
-              <span
-                key={discipline}
-                className="rounded-full bg-zinc-100 px-3 py-1 text-sm"
-              >
-                {discipline}
-              </span>
-            ))}
-          </div>
-
-          {member.bio && (
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-600">
-              {member.bio}
-            </p>
+          {member.disciplines.length > 0 && (
+            <ul className="member-profile-disciplines" aria-label="Disciplines">
+              {member.disciplines.map((discipline) => (
+                <li className="member-profile-discipline" key={discipline}>
+                  {discipline}
+                </li>
+              ))}
+            </ul>
           )}
-        </div>
-      </div>
 
-      <div className="mt-16">
-        <h2 className="mb-6 text-3xl font-black">Portfolio</h2>
+          {member.bio && <p className="member-profile-bio">{member.bio}</p>}
+        </div>
+
+        <div className="member-profile-avatar">
+          <img
+            src={
+              member.profileImage ||
+              'https://placehold.co/500x500?text=SIDA+Member'
+            }
+            alt={`${member.name}'s profile`}
+          />
+        </div>
+      </section>
+
+      <section className="member-profile-portfolio" aria-labelledby="portfolio-heading">
+        <h2 id="portfolio-heading" className="member-profile-section-title">
+          Portfolio Work
+        </h2>
 
         {isPortfolioLoading && (
-          <p className="text-zinc-500">Loading portfolio...</p>
+          <p className="member-profile-message">Loading portfolio...</p>
         )}
 
         {portfolioError && (
-          <p className="text-red-700">
+          <p className="member-profile-message member-profile-error">
             Unable to load portfolio: {portfolioError}
           </p>
         )}
 
         {!isPortfolioLoading && !portfolioError && portfolio.length === 0 && (
-          <p className="text-zinc-500">
+          <p className="member-profile-message">
             This member has not published any work yet.
           </p>
         )}
 
         {!isPortfolioLoading && !portfolioError && portfolio.length > 0 && (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="member-profile-work-grid">
             {portfolio.map((work) => (
               <WorkCard key={work.id} work={work} />
             ))}
           </div>
         )}
-      </div>
-    </section>
+      </section>
+    </main>
   )
 }
