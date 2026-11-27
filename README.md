@@ -7,7 +7,7 @@ Full-stack starter for the Student Independent Designers and Artists (SIDA) club
 - Frontend: React + TypeScript + Vite + React Router + Tailwind CSS v4
 - Backend: NestJS + TypeScript
 - Database: PostgreSQL + Prisma
-- Authentication/uploads: planned next layer
+- Authentication: JWT sessions, Leadership roles, and email account invitations; uploads are planned.
 
 ## Project structure
 
@@ -41,6 +41,9 @@ npm run start:dev
 ```
 
 The API health endpoint is available at `http://localhost:3000/api/health`.
+Leadership account invitations use Resend. Set `RESEND_API_KEY` and a verified
+sender address in `EMAIL_FROM` in `apps/api/.env`; the invitation link uses
+`WEB_ORIGIN` and expires after 24 hours.
 
 ## Database
 
@@ -56,7 +59,7 @@ npx prisma migrate dev --name init
 
 1. Finish public pages and responsive layout.
 2. Add PostgreSQL/Prisma repositories and seed data.
-3. Add authentication with role-based access (`MEMBER`, `LEADERSHIP`).
+3. Expand authentication and role-based access (`MEMBER`, `LEADERSHIP`).
 4. Add secure media uploads using object storage rather than storing large files in PostgreSQL.
 5. Add member work submission/review workflow.
 6. Add commission request storage and leadership assignment/status workflow.

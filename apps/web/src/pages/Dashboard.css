@@ -598,6 +598,54 @@
   margin-top: 0;
 }
 
+.dashboard-member-invite-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.dashboard-member-invite-form > button {
+  justify-self: start;
+}
+
+.dashboard-member-list-heading {
+  margin: 28px 0 12px;
+}
+
+.dashboard-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashboard-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-light-gray);
+  border-radius: 8px;
+}
+
+.dashboard-member-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 3px;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-member-meta {
+  color: #666666;
+}
+
+.dashboard-member-delete {
+  flex: 0 0 auto;
+}
+
 
 /* =========================================
    MODAL OVERLAY
@@ -790,6 +838,18 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .dashboard-member-invite-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-member-invite-form > button {
+    width: 100%;
+  }
+
+  .dashboard-member-row {
+    align-items: flex-start;
+  }
+
   .dashboard-work-preview {
     width: min(100%, 320px);
   }
@@ -826,6 +886,14 @@
 
   .dashboard-accordion-title {
     overflow-wrap: anywhere;
+  }
+
+  .dashboard-member-row {
+    flex-direction: column;
+  }
+
+  .dashboard-member-delete {
+    width: 100%;
   }
 
   .dashboard-modal {

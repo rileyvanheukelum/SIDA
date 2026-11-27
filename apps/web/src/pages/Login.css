@@ -101,6 +101,9 @@
 ============================== */
 
 .login-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   min-height: 48px;
 
@@ -112,6 +115,7 @@
 
   color: var(--color-white);
   cursor: pointer;
+  text-decoration: none;
 
   transition:
     background-color 150ms ease,

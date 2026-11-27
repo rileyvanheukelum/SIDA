@@ -10,6 +10,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { AuthService } from './auth.service'
 import { LoginDto } from './dto/login.dto'
 import { UpdateProfileDto } from './dto/update-profile.dto'
+import { AcceptInvitationDto } from './dto/accept-invitation.dto'
 import { CurrentMember } from './current-member.decorator'
 
 @Controller('auth')
@@ -19,6 +20,11 @@ export class AuthController {
     @Post('login')
     login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto)
+    }
+
+    @Post('accept-invitation')
+    acceptInvitation(@Body() dto: AcceptInvitationDto) {
+        return this.authService.acceptInvitation(dto)
     }
 
     @UseGuards(AuthGuard('jwt'))

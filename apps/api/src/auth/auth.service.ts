@@ -4,10 +4,12 @@ import {
     NotFoundException 
 } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { compare } from 'bcryptjs'
+import { compare, hash } from 'bcryptjs'
+import { createHash } from 'node:crypto'
 import { PrismaService } from '../prisma/prisma.service'
 import { LoginDto } from './dto/login.dto'
 import { UpdateProfileDto } from './dto/update-profile.dto'
+import { AcceptInvitationDto } from './dto/accept-invitation.dto'
 
 @Injectable()
 export class AuthService {
@@ -98,5 +100,45 @@ export class AuthService {
         })
 
         return member
+    }
+
+    async acceptInvitation(dto: AcceptInvitationDto) {
+        const tokenHash = createHash('sha256').update(dto.token).digest('hex')
+        const now = new Date()
+        const member = await this.prisma.member.findFirst({
+            where: {
+                invitationTokenHash: tokenHash,
+                invitationExpiresAt: { gt: now },
+            },
+            select: { id: true },
+        })
+
+        if (!member) {
+            throw new UnauthorizedException(
+                'This invitation link is invalid or has expired.',
+            )
+        }
+
+        const passwordHash = await hash(dto.password, 12)
+        const result = await this.prisma.member.updateMany({
+            where: {
+                id: member.id,
+                invitationTokenHash: tokenHash,
+                invitationExpiresAt: { gt: now },
+            },
+            data: {
+                passwordHash,
+                invitationTokenHash: null,
+                invitationExpiresAt: null,
+            },
+        })
+
+        if (result.count !== 1) {
+            throw new UnauthorizedException(
+                'This invitation link is invalid or has expired.',
+            )
+        }
+
+        return { success: true }
     }
 }

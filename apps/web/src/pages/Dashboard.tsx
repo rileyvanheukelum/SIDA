@@ -61,6 +61,15 @@ type ProfileForm = {
   profileImage: string
 }
 
+type ManagedMember = {
+  id: string
+  name: string
+  email: string
+  role: 'MEMBER' | 'LEADERSHIP'
+  createdAt: string
+  invitationExpiresAt: string | null
+}
+
 const emptyForm: WorkForm = {
   title: '',
   description: '',
@@ -97,9 +106,21 @@ export function Dashboard() {
   const [isSavingProfile, setIsSavingProfile] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'commissions' | 'portfolio' | 'account'>(
-    'commissions',
-  )
+  const [managedMembers, setManagedMembers] = useState<ManagedMember[]>([])
+  const [isLoadingMembers, setIsLoadingMembers] = useState(false)
+  const [isInvitingMember, setIsInvitingMember] = useState(false)
+  const [deletingMemberId, setDeletingMemberId] = useState<string | null>(null)
+  const [memberManagementError, setMemberManagementError] = useState<string | null>(null)
+  const [memberManagementSuccess, setMemberManagementSuccess] = useState<string | null>(null)
+  const [inviteForm, setInviteForm] = useState({
+    name: '',
+    email: '',
+    role: 'MEMBER' as 'MEMBER' | 'LEADERSHIP',
+    disciplines: '',
+  })
+  const [activeTab, setActiveTab] = useState<
+    'commissions' | 'portfolio' | 'account' | 'members'
+  >('commissions')
 
   useEffect(() => {
     async function loadWorks() {
@@ -185,6 +206,45 @@ export function Dashboard() {
     })
   }, [member])
 
+  useEffect(() => {
+    if (member?.role !== 'LEADERSHIP') return
+
+    async function loadManagedMembers() {
+      if (!accessToken) {
+        setMemberManagementError('You must be logged in to manage member accounts.')
+        return
+      }
+
+      setIsLoadingMembers(true)
+      setMemberManagementError(null)
+
+      try {
+        const response = await fetch(`${API_URL}/members/management`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+
+        if (!response.ok) {
+          throw new Error(
+            await getResponseError(response, 'Unable to load member accounts.'),
+          )
+        }
+
+        const data: ManagedMember[] = await response.json()
+        setManagedMembers(data)
+      } catch (err) {
+        setMemberManagementError(
+          err instanceof Error
+            ? err.message
+            : 'An unexpected error occurred while loading member accounts.',
+        )
+      } finally {
+        setIsLoadingMembers(false)
+      }
+    }
+
+    loadManagedMembers()
+  }, [accessToken, member?.role])
+
   function updateProfileForm(field: keyof ProfileForm, value: string) {
     setProfileForm((current) => ({
       ...current,
@@ -251,6 +311,113 @@ export function Dashboard() {
       )
     } finally {
       setIsSavingProfile(false)
+    }
+  }
+
+  async function handleInviteMember(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    if (!accessToken) {
+      setMemberManagementError('You must be logged in to invite a member.')
+      return
+    }
+
+    setIsInvitingMember(true)
+    setMemberManagementError(null)
+    setMemberManagementSuccess(null)
+
+    try {
+      const response = await fetch(`${API_URL}/members`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          name: inviteForm.name.trim(),
+          email: inviteForm.email.trim(),
+          role: inviteForm.role,
+          disciplines: inviteForm.disciplines
+            .split(',')
+            .map((discipline) => discipline.trim())
+            .filter(Boolean),
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(
+          await getResponseError(response, 'Unable to send the invitation.'),
+        )
+      }
+
+      const invitedMember: ManagedMember = await response.json()
+      setManagedMembers((current) => [
+        invitedMember,
+        ...current.filter((existing) => existing.id !== invitedMember.id),
+      ])
+      setInviteForm({
+        name: '',
+        email: '',
+        role: 'MEMBER',
+        disciplines: '',
+      })
+      setMemberManagementSuccess(
+        `An account setup invitation was sent to ${invitedMember.email}.`,
+      )
+    } catch (err) {
+      setMemberManagementError(
+        err instanceof Error
+          ? err.message
+          : 'An unexpected error occurred while sending the invitation.',
+      )
+    } finally {
+      setIsInvitingMember(false)
+    }
+  }
+
+  async function handleDeleteMember(memberToDelete: ManagedMember) {
+    const confirmed = window.confirm(
+      `Delete ${memberToDelete.name} (${memberToDelete.email})? This permanently removes their account, portfolio submissions, and commission assignments.`,
+    )
+
+    if (!confirmed) return
+
+    if (!accessToken) {
+      setMemberManagementError('You must be logged in to delete a member account.')
+      return
+    }
+
+    setDeletingMemberId(memberToDelete.id)
+    setMemberManagementError(null)
+    setMemberManagementSuccess(null)
+
+    try {
+      const response = await fetch(
+        `${API_URL}/members/${encodeURIComponent(memberToDelete.id)}`,
+        {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${accessToken}` },
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error(
+          await getResponseError(response, 'Unable to delete the member account.'),
+        )
+      }
+
+      setManagedMembers((current) =>
+        current.filter((managedMember) => managedMember.id !== memberToDelete.id),
+      )
+      setMemberManagementSuccess(`${memberToDelete.name}'s account was deleted.`)
+    } catch (err) {
+      setMemberManagementError(
+        err instanceof Error
+          ? err.message
+          : 'An unexpected error occurred while deleting the member account.',
+      )
+    } finally {
+      setDeletingMemberId(null)
     }
   }
 
@@ -433,6 +600,18 @@ export function Dashboard() {
         >
           Account
         </button>
+
+        {member.role === 'LEADERSHIP' && (
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'members'}
+            className={`dashboard-tab ${activeTab === 'members' ? 'active' : ''}`}
+            onClick={() => setActiveTab('members')}
+          >
+            Members
+          </button>
+        )}
       </div>
 
       {/* TAB CONTENT */}
@@ -890,6 +1069,151 @@ export function Dashboard() {
             </form>
           </div>
         )}
+
+        {activeTab === 'members' && member.role === 'LEADERSHIP' && (
+          <div role="tabpanel">
+            <h2 className="type-subheading-1">Manage Member Accounts</h2>
+            <p className="type-body-2 dashboard-section-description">
+              Invite members by email or remove accounts that are no longer needed.
+            </p>
+
+            {memberManagementError && (
+              <div role="alert" className="dashboard-error">
+                {memberManagementError}
+              </div>
+            )}
+
+            {memberManagementSuccess && (
+              <div role="status" className="dashboard-success">
+                {memberManagementSuccess}
+              </div>
+            )}
+
+            <form
+              onSubmit={handleInviteMember}
+              className="dashboard-member-invite-form"
+            >
+              <DashboardField label="Full name" id="invite-member-name">
+                <input
+                  id="invite-member-name"
+                  required
+                  maxLength={120}
+                  autoComplete="name"
+                  value={inviteForm.name}
+                  onChange={(event) =>
+                    setInviteForm((current) => ({ ...current, name: event.target.value }))
+                  }
+                />
+              </DashboardField>
+
+              <DashboardField label="Email" id="invite-member-email">
+                <input
+                  id="invite-member-email"
+                  type="email"
+                  required
+                  maxLength={254}
+                  autoComplete="email"
+                  value={inviteForm.email}
+                  onChange={(event) =>
+                    setInviteForm((current) => ({ ...current, email: event.target.value }))
+                  }
+                />
+              </DashboardField>
+
+              <DashboardField label="Role" id="invite-member-role">
+                <select
+                  id="invite-member-role"
+                  value={inviteForm.role}
+                  onChange={(event) =>
+                    setInviteForm((current) => ({
+                      ...current,
+                      role:
+                        event.target.value === 'LEADERSHIP'
+                          ? 'LEADERSHIP'
+                          : 'MEMBER',
+                    }))
+                  }
+                >
+                  <option value="MEMBER">Member</option>
+                  <option value="LEADERSHIP">Leadership</option>
+                </select>
+              </DashboardField>
+
+              <DashboardField label="Disciplines" id="invite-member-disciplines">
+                <input
+                  id="invite-member-disciplines"
+                  placeholder="Graphic Design, Illustration, Photography"
+                  value={inviteForm.disciplines}
+                  onChange={(event) =>
+                    setInviteForm((current) => ({
+                      ...current,
+                      disciplines: event.target.value,
+                    }))
+                  }
+                />
+              </DashboardField>
+
+              <button
+                type="submit"
+                disabled={isInvitingMember}
+                className="dashboard-primary-button"
+              >
+                {isInvitingMember ? 'Sending invitation...' : 'Send account invitation'}
+              </button>
+            </form>
+
+            <h3 className="type-subheading-2 dashboard-member-list-heading">
+              Member accounts
+            </h3>
+
+            {isLoadingMembers ? (
+              <p className="type-body-2 dashboard-empty">Loading member accounts...</p>
+            ) : managedMembers.length === 0 ? (
+              <p className="type-body-2 dashboard-empty">No member accounts found.</p>
+            ) : (
+              <div className="dashboard-member-list">
+                {managedMembers.map((managedMember) => {
+                  const invitationStatus =
+                    managedMember.invitationExpiresAt === null
+                      ? 'Account active'
+                      : new Date(managedMember.invitationExpiresAt).getTime() > Date.now()
+                        ? 'Invitation pending'
+                        : 'Invitation expired'
+
+                  return (
+                    <div className="dashboard-member-row" key={managedMember.id}>
+                      <div className="dashboard-member-info">
+                        <span className="type-subheading-4">{managedMember.name}</span>
+                        <span className="type-body-2">{managedMember.email}</span>
+                        <span className="type-body-2 dashboard-member-meta">
+                          {managedMember.role === 'LEADERSHIP' ? 'Leadership' : 'Member'}
+                          {' · '}
+                          {invitationStatus}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={
+                          managedMember.id === member.id ||
+                          deletingMemberId === managedMember.id
+                        }
+                        className="dashboard-secondary-button dashboard-member-delete"
+                        onClick={() => handleDeleteMember(managedMember)}
+                      >
+                        {managedMember.id === member.id
+                          ? 'Your account'
+                          : deletingMemberId === managedMember.id
+                            ? 'Deleting...'
+                            : 'Delete'}
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       {/* NEW WORK MODAL */}
@@ -1020,6 +1344,15 @@ export function Dashboard() {
       )}
     </section>
   )
+}
+
+async function getResponseError(response: Response, fallback: string) {
+  const responseBody = await response.json().catch(() => null)
+  const message = Array.isArray(responseBody?.message)
+    ? responseBody.message.join(' ')
+    : responseBody?.message
+
+  return message || `${fallback} (${response.status}).`
 }
 
 function Card({ title, text }: { title: string; text: string }) {

@@ -14,6 +14,7 @@ import { Moderation } from './pages/Moderation'
 import { CreateMember } from './pages/CreateMember'
 import { Discover } from './pages/Discover'
 import { CommissionManagement } from './pages/CommissionManagement'
+import { SetupAccount } from './pages/SetupAccount'
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
           <Route path="/members/:memberId" element={<MemberProfile />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/setup-account" element={<SetupAccount />} />
 
           {/* Any authenticated member */}
           <Route element={<ProtectedRoute />}>

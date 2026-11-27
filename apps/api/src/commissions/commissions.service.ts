@@ -85,6 +85,7 @@ export class CommissionsService {
 
   async getAssignableMembers() {
     return this.prisma.member.findMany({
+      where: { invitationTokenHash: null },
       select: {
         id: true,
         name: true,
@@ -108,8 +109,8 @@ export class CommissionsService {
       throw new NotFoundException('Commission request not found.')
     }
 
-    const member = await this.prisma.member.findUnique({
-      where: { id: memberId },
+    const member = await this.prisma.member.findFirst({
+      where: { id: memberId, invitationTokenHash: null },
       select: { id: true },
     })
 

@@ -31,6 +31,8 @@ model Member {
   email        String      @unique
   name         String
   passwordHash String
+  invitationTokenHash String? @unique
+  invitationExpiresAt DateTime?
   role         Role        @default(MEMBER)
   title        String?
   bio          String?
