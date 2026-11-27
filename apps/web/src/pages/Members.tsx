@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-
 import './Members.css'
+import API_URL from '../config/api'
 
 type Member = {
   id: string
@@ -12,8 +12,6 @@ type Member = {
   profileImage: string | null
   role: 'MEMBER' | 'LEADERSHIP'
 }
-
-const API_URL = 'http://localhost:3000/api'
 
 export function Members() {
   const [members, setMembers] = useState<Member[]>([])

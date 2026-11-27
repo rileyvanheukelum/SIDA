@@ -1,9 +1,7 @@
 
 import { useState, type FormEvent } from 'react'
-
 import './CommissionRequest.css'
-
-const API_URL = 'http://localhost:3000/api'
+import API_URL from '../config/api'
 
 export function CommissionRequest() {
   const [isSubmitting, setIsSubmitting] = useState(false)

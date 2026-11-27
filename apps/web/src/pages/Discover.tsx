@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react'
-
 import { WorkCard } from '../components/WorkCard'
 import type { Work } from '../data/mock'
-
 import './Discover.css'
-
-const API_URL = 'http://localhost:3000/api'
+import API_URL from '../config/api'
 
 export function Discover() {
   const [works, setWorks] = useState<Work[]>([])

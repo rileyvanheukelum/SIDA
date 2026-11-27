@@ -2,8 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import './Dashboard.css'
-
-const API_URL = 'http://localhost:3000/api'
+import API_URL from '../config/api'
 
 type WorkStatus = 'PENDING' | 'APPROVED' | 'DENIED'
 

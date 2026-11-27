@@ -22,7 +22,6 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-
   margin-bottom: 32px;
 }
 
@@ -37,13 +36,21 @@
 
 .home-featured-link {
   color: var(--color-black);
-
   text-decoration: none;
   white-space: nowrap;
 }
 
 .home-featured-link:hover {
   text-decoration: underline;
+}
+
+.home-featured-message {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.home-featured-error {
+  color: var(--color-red);
 }
 
 /* ==============================

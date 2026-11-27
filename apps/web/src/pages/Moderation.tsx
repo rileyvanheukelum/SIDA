@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import './Moderation.css'
-
-const API_URL = 'http://localhost:3000/api'
+import API_URL from '../config/api'
 
 type ModerationStatus = 'APPROVED' | 'DENIED'
 

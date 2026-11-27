@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import './CommissionManagement.css'
-
-const API_URL = 'http://localhost:3000/api'
+import API_URL from '../config/api'
 
 const COMMISSION_STATUSES = [
   'SUBMITTED',
